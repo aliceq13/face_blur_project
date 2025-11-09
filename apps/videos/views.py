@@ -72,7 +72,6 @@ class VideoViewSet(viewsets.ModelViewSet):
         Request (multipart/form-data):
         - video_file: 영상 파일 (필수)
         - title: 제목 (필수)
-        - description: 설명 (선택)
 
         Response:
         - 201 Created: 업로드 성공
@@ -140,7 +139,6 @@ class VideoViewSet(viewsets.ModelViewSet):
         video = Video.objects.create(
             user=request.user,
             title=serializer.validated_data['title'],
-            description=serializer.validated_data.get('description', ''),
             original_file_url=file_url,
             duration=duration,
             width=width,

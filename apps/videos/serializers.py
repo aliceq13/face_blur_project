@@ -120,7 +120,6 @@ class VideoDetailSerializer(serializers.ModelSerializer):
             'id',
             'user',
             'title',
-            'description',
             'original_file_url',    # 원본 영상 URL
             'processed_file_url',   # 처리된 영상 URL
             'thumbnail_url',
@@ -157,25 +156,19 @@ class VideoUploadSerializer(serializers.ModelSerializer):
     """
     비디오 업로드용 Serializer
     - 사용자가 새 비디오를 업로드할 때 사용
-    - 파일 업로드와 함께 제목, 설명 등 받음
+    - 파일 업로드와 함께 제목만 받음
     """
     # 실제 파일 업로드는 View에서 처리하고, 여기서는 메타데이터만 검증
 
     class Meta:
         model = Video
-        fields = ['title', 'description']
+        fields = ['title']
 
     def validate_title(self, value):
         """제목 유효성 검사"""
         if len(value.strip()) < 2:
             raise serializers.ValidationError("제목은 최소 2자 이상이어야 합니다.")
         return value.strip()
-
-    def validate_description(self, value):
-        """설명 유효성 검사 (선택 사항)"""
-        if value:
-            return value.strip()
-        return value
 
 
 class FaceUpdateSerializer(serializers.ModelSerializer):
