@@ -44,8 +44,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     zlib1g-dev \
     # FFmpeg (영상 처리에 필요)
     ffmpeg \
-    # OpenCV 의존성
-    libgl1-mesa-glx \
+    # OpenCV 의존성 (libgl1-mesa-glx는 더 이상 사용되지 않음, libgl1으로 변경)
+    libgl1 \
     libglib2.0-0 \
     # 타임존 설정
     tzdata \
