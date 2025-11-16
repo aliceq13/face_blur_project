@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-비디오 앱 API Views
-Django REST Framework의 ViewSet을 사용하여 RESTful API 구현
+비디오 앱 Views
+- API Views: Django REST Framework ViewSet (API 엔드포인트)
+- Template Views: 일반 Django View (HTML 페이지 렌더링)
 """
 
 from rest_framework import viewsets, status
@@ -9,7 +10,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
-from django.shortcuts import get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
 from django.core.files.storage import default_storage
 from django.conf import settings
 import uuid
@@ -27,6 +29,68 @@ from .serializers import (
     VideoProcessSerializer,
     ProcessingJobSerializer
 )
+
+
+# ============================================================================
+# 템플릿 렌더링 Views (HTML 페이지)
+# ============================================================================
+
+def upload_page(request):
+    """
+    비디오 업로드 페이지
+    GET / - 업로드 페이지 표시
+    """
+    return render(request, 'videos/upload.html')
+
+
+@login_required
+def select_faces_page(request, pk):
+    """
+    얼굴 선택 페이지
+    GET /video/<uuid>/select/ - 얼굴 선택 페이지 표시
+
+    Args:
+        pk: 비디오 UUID
+
+    Returns:
+        HTML 페이지 또는 리다이렉트
+    """
+    # 비디오 조회 (본인 소유 확인)
+    video = get_object_or_404(Video, id=pk, user=request.user)
+
+    # 상태 확인 - 분석 완료 상태여야 함
+    if video.status not in ['ready', 'analyzing']:
+        # analyzing 상태면 조금 기다리면 ready가 될 수 있으므로 허용
+        pass
+
+    return render(request, 'videos/select_faces.html', {
+        'video': video
+    })
+
+
+@login_required
+def preview_page(request, pk):
+    """
+    비디오 미리보기 및 처리 시작 페이지
+    GET /video/<uuid>/preview/ - 미리보기 페이지 표시
+
+    Args:
+        pk: 비디오 UUID
+
+    Returns:
+        HTML 페이지
+    """
+    # 비디오 조회 (본인 소유 확인)
+    video = get_object_or_404(Video, id=pk, user=request.user)
+
+    return render(request, 'videos/preview.html', {
+        'video': video
+    })
+
+
+# ============================================================================
+# API Views (REST Framework ViewSet)
+# ============================================================================
 
 
 class VideoViewSet(viewsets.ModelViewSet):

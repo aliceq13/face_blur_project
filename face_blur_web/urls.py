@@ -21,9 +21,12 @@ urlpatterns = [
     # 개발 중 테스트용 - 브라우저에서 API 테스트 가능
     path('api-auth/', include('rest_framework.urls')),
 
-    # 비디오 API
-    # /api/videos/, /api/faces/, /api/jobs/
-    path('api/', include('apps.videos.urls')),
+    # 비디오 앱 (템플릿 페이지 + API)
+    # / - 업로드 페이지
+    # /video/<id>/select/ - 얼굴 선택 페이지
+    # /video/<id>/preview/ - 미리보기 페이지
+    # /api/videos/, /api/faces/, /api/jobs/ - API 엔드포인트
+    path('', include('apps.videos.urls')),
 
     # 사용자 인증 API (Phase 2에서 구현)
     # path('api/accounts/', include('apps.accounts.urls')),
