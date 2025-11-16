@@ -33,4 +33,5 @@ urlpatterns = [
     # /api/faces/?video_id={id} - 얼굴 목록
     # /api/faces/{id}/ - 얼굴 상세, 블러 선택 변경
     # /api/jobs/?video_id={id} - 처리 작업 목록
+    path('api/', include(router.urls)),
 ]
