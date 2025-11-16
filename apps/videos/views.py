@@ -8,7 +8,7 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
@@ -105,7 +105,7 @@ class VideoViewSet(viewsets.ModelViewSet):
     - DELETE /api/videos/{id}/ : 비디오 삭제
     - POST /api/videos/{id}/start_processing/ : 영상 처리 시작
     """
-    permission_classes = [IsAuthenticated]  # 로그인 필수
+    permission_classes = [AllowAny]  # 개발 중: 로그인 없이 테스트 가능
     parser_classes = (MultiPartParser, FormParser)  # 파일 업로드 지원
 
     def get_queryset(self):
@@ -200,8 +200,12 @@ class VideoViewSet(viewsets.ModelViewSet):
             print(f"Warning: Failed to extract video metadata: {e}")
 
         # 5. Video 모델 생성
+        # 로그인 안 한 경우 admin 사용자로 설정 (개발용)
+        from django.contrib.auth.models import User
+        user = request.user if request.user.is_authenticated else User.objects.get(username='admin')
+
         video = Video.objects.create(
-            user=request.user,
+            user=user,
             title=serializer.validated_data['title'],
             original_file_url=file_url,
             duration=duration,
