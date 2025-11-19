@@ -122,7 +122,6 @@ class VideoDetailSerializer(serializers.ModelSerializer):
             'title',
             'original_file_url',    # 원본 영상 URL
             'processed_file_url',   # 처리된 영상 URL
-            'thumbnail_url',
 
             # 메타데이터
             'duration',             # 영상 길이 (초)
@@ -147,7 +146,7 @@ class VideoDetailSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             'id', 'user', 'original_file_url', 'processed_file_url',
-            'thumbnail_url', 'duration', 'width', 'height', 'fps',
+            'duration', 'width', 'height', 'fps',
             'file_size', 'status', 'progress', 'created_at', 'updated_at', 'expires_at'
         ]
 

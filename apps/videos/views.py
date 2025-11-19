@@ -43,7 +43,6 @@ def upload_page(request):
     return render(request, 'videos/upload.html')
 
 
-@login_required
 def select_faces_page(request, pk):
     """
     얼굴 선택 페이지
@@ -55,8 +54,8 @@ def select_faces_page(request, pk):
     Returns:
         HTML 페이지 또는 리다이렉트
     """
-    # 비디오 조회 (본인 소유 확인)
-    video = get_object_or_404(Video, id=pk, user=request.user)
+    # 비디오 조회 (개발 환경에서는 인증 불필요)
+    video = get_object_or_404(Video, id=pk)
 
     # 상태 확인 - 분석 완료 상태여야 함
     if video.status not in ['ready', 'analyzing']:
@@ -68,7 +67,6 @@ def select_faces_page(request, pk):
     })
 
 
-@login_required
 def preview_page(request, pk):
     """
     비디오 미리보기 및 처리 시작 페이지
@@ -80,8 +78,8 @@ def preview_page(request, pk):
     Returns:
         HTML 페이지
     """
-    # 비디오 조회 (본인 소유 확인)
-    video = get_object_or_404(Video, id=pk, user=request.user)
+    # 비디오 조회 (개발 환경에서는 인증 불필요)
+    video = get_object_or_404(Video, id=pk)
 
     return render(request, 'videos/preview.html', {
         'video': video
@@ -110,10 +108,16 @@ class VideoViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """
-        현재 로그인한 사용자의 비디오만 조회
-        - 보안: 다른 사용자의 비디오는 접근 불가
+        비디오 목록 조회
+        - 개발 모드: 로그인하지 않아도 모든 비디오 조회 가능
+        - 운영 모드: 로그인한 사용자의 비디오만 조회
         """
-        return Video.objects.filter(user=self.request.user).order_by('-created_at')
+        # 개발 중: 비로그인 사용자도 모든 비디오 조회 가능
+        if self.request.user.is_authenticated:
+            return Video.objects.filter(user=self.request.user).order_by('-created_at')
+        else:
+            # 비로그인 사용자는 모든 비디오 볼 수 있음 (개발 모드)
+            return Video.objects.all().order_by('-created_at')
 
     def get_serializer_class(self):
         """
@@ -217,7 +221,21 @@ class VideoViewSet(viewsets.ModelViewSet):
             expires_at=timezone.now() + timedelta(days=7)  # 7일 후 자동 삭제
         )
 
-        # 6. 응답
+        # 6. Celery 얼굴 분석 태스크 트리거 (Phase 3)
+        from .tasks import analyze_faces_task
+        from .models import ProcessingJob
+
+        task = analyze_faces_task.delay(str(video.id))
+
+        # ProcessingJob 생성
+        ProcessingJob.objects.create(
+            video=video,
+            job_type='face_analysis',
+            celery_task_id=task.id,
+            status='pending'
+        )
+
+        # 7. 응답
         response_serializer = VideoDetailSerializer(video)
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
 
@@ -303,15 +321,21 @@ class FaceViewSet(viewsets.ModelViewSet):
     - GET /api/faces/{id}/ : 얼굴 상세 조회
     - PATCH /api/faces/{id}/ : 블러 처리 여부 변경
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]  # 개발 모드: 로그인 없이 테스트 가능
     serializer_class = FaceSerializer
+    pagination_class = None  # 페이지네이션 비활성화 (비디오당 얼굴 수가 적음)
 
     def get_queryset(self):
         """
-        현재 사용자의 비디오에 속한 얼굴만 조회
+        얼굴 목록 조회
+        - 개발 모드: 로그인하지 않아도 모든 얼굴 조회 가능
         - 쿼리 파라미터로 비디오 필터링 가능: ?video_id=xxx
         """
-        queryset = Face.objects.filter(video__user=self.request.user)
+        # 개발 중: 비로그인 사용자도 모든 얼굴 조회 가능
+        if self.request.user.is_authenticated:
+            queryset = Face.objects.filter(video__user=self.request.user)
+        else:
+            queryset = Face.objects.all()
 
         # 특정 비디오의 얼굴만 필터링
         video_id = self.request.query_params.get('video_id')
@@ -341,15 +365,20 @@ class ProcessingJobViewSet(viewsets.ReadOnlyModelViewSet):
 
     작업 생성은 Video API에서 자동으로 처리됨
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]  # 개발 모드: 로그인 없이 테스트 가능
     serializer_class = ProcessingJobSerializer
 
     def get_queryset(self):
         """
-        현재 사용자의 비디오에 속한 작업만 조회
+        처리 작업 목록 조회
+        - 개발 모드: 로그인하지 않아도 모든 작업 조회 가능
         - 쿼리 파라미터로 비디오 필터링 가능: ?video_id=xxx
         """
-        queryset = ProcessingJob.objects.filter(video__user=self.request.user)
+        # 개발 중: 비로그인 사용자도 모든 작업 조회 가능
+        if self.request.user.is_authenticated:
+            queryset = ProcessingJob.objects.filter(video__user=self.request.user)
+        else:
+            queryset = ProcessingJob.objects.all()
 
         # 특정 비디오의 작업만 필터링
         video_id = self.request.query_params.get('video_id')

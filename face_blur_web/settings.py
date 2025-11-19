@@ -205,6 +205,15 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # ============================================================================
+# AI 모델 파일 설정 (Phase 3)
+# ============================================================================
+# AI 모델 파일 저장 디렉토리
+MODELS_ROOT = BASE_DIR / 'models'
+
+# YOLO Face Detection 모델 경로
+YOLO_FACE_MODEL_PATH = MODELS_ROOT / 'yolov11s-face.pt'
+
+# ============================================================================
 # AWS S3 설정 (운영 환경)
 # ============================================================================
 # USE_S3 환경 변수가 True면 S3 사용, False면 로컬 파일 시스템 사용
@@ -335,6 +344,11 @@ CELERY_TIMEZONE = TIME_ZONE              # 타임존
 # 작업 시간 제한 (초)
 CELERY_TASK_TIME_LIMIT = 3600  # 1시간 (영상 처리 시간 고려)
 CELERY_TASK_SOFT_TIME_LIMIT = 3000  # 50분 (소프트 제한)
+
+# 기본 큐 설정 (Celery 기본값은 'celery'이지만 'default' 사용)
+CELERY_TASK_DEFAULT_QUEUE = 'default'
+CELERY_TASK_DEFAULT_EXCHANGE = 'default'
+CELERY_TASK_DEFAULT_ROUTING_KEY = 'default'
 
 # ============================================================================
 # 로깅 설정

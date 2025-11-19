@@ -239,32 +239,69 @@ function showCompleted(fileId, video) {
 
 /**
  * 얼굴 분석 상태 폴링
- * 실제로는 analyzing -> ready 상태 변화를 확인해야 하지만
- * 현재는 AI 서버가 없으므로 시뮬레이션
+ * 비디오 상태를 주기적으로 확인하여 analyzing -> ready 변화를 감지
  */
 async function startAnalysisPolling(fileId, videoId) {
     const item = uploadingFiles.get(fileId);
     if (!item || !item.element) return;
 
-    // 실제 구현에서는 이 부분을 주기적으로 API 호출하도록 변경
-    // setInterval로 getVideoDetail(videoId) 호출하여 status 확인
+    let pollCount = 0;
+    const maxPolls = 120; // 최대 2분 (2초마다 체크)
 
-    // 임시: 3초 후 분석 완료로 표시
-    setTimeout(() => {
-        const statusText = item.element.querySelector('[data-status]');
-        if (statusText) {
-            statusText.className = 'text-sm font-normal text-success';
-            statusText.textContent = '분석 완료! 얼굴 선택 단계로 이동하세요.';
+    const pollInterval = setInterval(async () => {
+        pollCount++;
+
+        // 최대 폴링 횟수 초과 시 타임아웃 처리
+        if (pollCount > maxPolls) {
+            clearInterval(pollInterval);
+            const statusContainer = item.element.querySelector('.flex.items-center.justify-between');
+            statusContainer.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-error">error</span>
+                    <p class="text-sm font-normal text-error">분석 시간 초과. 잠시 후 다시 확인해주세요.</p>
+                </div>
+            `;
+            return;
         }
 
-        const statusContainer = item.element.querySelector('.flex.items-center.justify-between');
-        statusContainer.innerHTML = `
-            <p class="text-sm font-normal text-success">분석 완료! 얼굴 선택 단계로 이동하세요.</p>
-            <a href="/video/${videoId}/select/" class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 bg-primary text-white text-sm font-bold shadow-sm transition-colors hover:bg-primary/90">
-                <span class="truncate">다음 단계로</span>
-            </a>
-        `;
-    }, 3000);
+        try {
+            // 비디오 상태 확인
+            const video = await getVideoDetail(videoId);
+
+            if (video.status === 'ready') {
+                // 분석 완료!
+                clearInterval(pollInterval);
+
+                const statusContainer = item.element.querySelector('.flex.items-center.justify-between');
+                statusContainer.innerHTML = `
+                    <p class="text-sm font-normal text-success">분석 완료! 얼굴 선택 단계로 이동하세요.</p>
+                    <a href="/video/${videoId}/select/" class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 bg-primary text-white text-sm font-bold shadow-sm transition-colors hover:bg-primary/90">
+                        <span class="truncate">다음 단계로</span>
+                    </a>
+                `;
+            } else if (video.status === 'failed') {
+                // 분석 실패
+                clearInterval(pollInterval);
+
+                const statusContainer = item.element.querySelector('.flex.items-center.justify-between');
+                statusContainer.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-error">error</span>
+                        <p class="text-sm font-normal text-error">얼굴 분석 실패. 다시 시도해주세요.</p>
+                    </div>
+                `;
+            } else {
+                // 아직 진행 중 - 진행률 업데이트
+                const statusText = item.element.querySelector('[data-status]');
+                if (statusText) {
+                    statusText.textContent = `얼굴 분석 중... (${video.progress || 0}%)`;
+                }
+            }
+        } catch (error) {
+            console.error('분석 상태 확인 실패:', error);
+            // 에러가 나도 계속 폴링 (일시적인 네트워크 에러일 수 있음)
+        }
+    }, 2000); // 2초마다 체크
 }
 
 /**

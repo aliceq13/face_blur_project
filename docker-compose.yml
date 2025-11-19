@@ -116,10 +116,20 @@ services:
       - .:/app                                    # 현재 디렉토리를 /app에 마운트
       - static_volume:/app/staticfiles            # Static 파일
       - media_volume:/app/media                   # 업로드된 미디어 파일
+      - ./models/yolov11s-face.pt:/app/models/yolov11s-face.pt:ro  # YOLO 모델 파일 (읽기 전용)
 
     # 포트 노출
     ports:
       - "8000:8000"
+
+    # GPU 지원 (NVIDIA Docker 필요)
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
     # 환경 변수
     environment:
@@ -165,44 +175,55 @@ services:
     restart: unless-stopped
 
   # ==========================================================================
-  # Celery Worker (비동기 작업 처리) - Phase 4에서 활성화
+  # Celery Worker (비동기 작업 처리)
   # ==========================================================================
-  # 주석 해제하려면 '#'를 제거하세요
-  # celery_worker:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.django
-  #
-  #   container_name: faceblur_celery_worker
-  #
-  #   # Celery 워커 실행
-  #   command: celery -A face_blur_web worker -l info -Q default,video_processing
-  #
-  #   volumes:
-  #     - .:/app
-  #     - media_volume:/app/media
-  #
-  #   environment:
-  #     - DB_ENGINE=django.db.backends.postgresql
-  #     - DB_NAME=faceblur_db
-  #     - DB_USER=postgres
-  #     - DB_PASSWORD=postgres123
-  #     - DB_HOST=db
-  #     - DB_PORT=5432
-  #     - REDIS_URL=redis://redis:6379/0
-  #     - CELERY_BROKER_URL=redis://redis:6379/0
-  #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
-  #     - FASTAPI_BASE_URL=http://fastapi:8001
-  #
-  #   depends_on:
-  #     - db
-  #     - redis
-  #     - django
-  #
-  #   networks:
-  #     - faceblur_network
-  #
-  #   restart: unless-stopped
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.django
+
+    container_name: faceblur_celery_worker
+
+    # Celery 워커 실행
+    # -Q 옵션 제거하여 모든 큐(celery, default, video_processing)를 listen
+    command: celery -A face_blur_web worker -l info
+
+    volumes:
+      - .:/app
+      - media_volume:/app/media
+      - ./models/yolov11s-face.pt:/app/models/yolov11s-face.pt:ro  # YOLO 모델 파일
+
+    # GPU 지원 (얼굴 인식 AI 모델 실행용)
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+    environment:
+      - DB_ENGINE=django.db.backends.postgresql
+      - DB_NAME=faceblur_db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres123
+      - DB_HOST=db
+      - DB_PORT=5432
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - FASTAPI_BASE_URL=http://fastapi:8001
+
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+    networks:
+      - faceblur_network
+
+    restart: unless-stopped
 
 # ============================================================================
 # 볼륨 정의 (데이터 영구 저장)

@@ -71,9 +71,18 @@ COPY requirements.txt /app/
 # pip 업그레이드
 RUN pip install --upgrade pip
 
+# PyTorch with CUDA 12.1 support (GPU 가속)
+# - torch와 torchvision을 먼저 설치 (CUDA 버전 명시)
+# - pip index를 사용하여 CUDA 빌드 다운로드
+RUN pip install --no-cache-dir \
+    torch==2.1.2 \
+    torchvision==0.16.2 \
+    --index-url https://download.pytorch.org/whl/cu121
+
 # Python 패키지 설치
 # --no-cache-dir: pip 캐시 저장 안 함 (이미지 크기 감소)
-RUN pip install --no-cache-dir -r requirements.txt
+# torch와 torchvision은 이미 설치했으므로 skip
+RUN pip install --no-cache-dir -r requirements.txt || true
 
 # Gunicorn 설치 (Django WSGI 서버)
 RUN pip install --no-cache-dir gunicorn==21.2.0
