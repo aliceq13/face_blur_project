@@ -161,9 +161,8 @@ def analyze_faces_task(self, video_id: str):
         detected_faces = pipeline.process_video(
             video_path=video_path,
             output_dir=thumbnail_dir,
-            eps=0.5,           # DBSCAN epsilon (거리 임계값)
-            min_samples=2,     # 최소 2개 얼굴이 있어야 클러스터로 인정
-            conf_threshold=0.5 # YOLO 신뢰도 임계값
+            conf_threshold=0.5,  # YOLO 신뢰도 임계값
+            sim_threshold=0.6    # ArcFace 유사도 임계값 (같은 사람 판단)
         )
 
         logger.info(f"Pipeline completed: {len(detected_faces)} unique faces found")

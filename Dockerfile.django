@@ -37,8 +37,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     # GCC 컴파일러 (일부 Python 패키지 빌드에 필요)
     gcc \
+    g++ \
     # Git (버전 관리, 일부 패키지 설치에 필요)
     git \
+    # Python 개발 헤더 (C 확장 모듈 빌드에 필요 - InsightFace 등)
+    python3-dev \
     # 이미지 처리 라이브러리 (Pillow에 필요)
     libjpeg-dev \
     zlib1g-dev \
@@ -68,8 +71,11 @@ WORKDIR /app
 # - 코드 변경 시 의존성 재설치를 방지
 COPY requirements.txt /app/
 
-# pip 업그레이드
-RUN pip install --upgrade pip
+# pip 업그레이드 및 빌드 도구 설치
+RUN pip install --upgrade pip setuptools wheel
+
+# InsightFace 빌드를 위한 사전 패키지 설치 (numpy, cython 필수)
+RUN pip install --no-cache-dir numpy cython
 
 # PyTorch with CUDA 12.1 support (GPU 가속)
 # - torch와 torchvision을 먼저 설치 (CUDA 버전 명시)
@@ -82,7 +88,7 @@ RUN pip install --no-cache-dir \
 # Python 패키지 설치
 # --no-cache-dir: pip 캐시 저장 안 함 (이미지 크기 감소)
 # torch와 torchvision은 이미 설치했으므로 skip
-RUN pip install --no-cache-dir -r requirements.txt || true
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Gunicorn 설치 (Django WSGI 서버)
 RUN pip install --no-cache-dir gunicorn==21.2.0
