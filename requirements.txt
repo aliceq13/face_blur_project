@@ -114,6 +114,11 @@ facenet-pytorch==2.5.3
 # - DBSCAN 클러스터링으로 동일 인물 그룹화
 scikit-learn==1.3.2
 
+# FINCH: 파라미터 프리 클러스터링 (얼굴 그룹화 최적화)
+# - HAC보다 빠르고 정확한 클러스터링
+# - 완전 자동 (파라미터 조정 불필요)
+finch-clust>=0.1.0
+
 # Ultralytics: YOLO 구현체
 # - YOLOv8/v11 얼굴 감지 모델 실행 (최신 버전 사용으로 YOLOv11 지원)
 ultralytics
