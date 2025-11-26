@@ -65,32 +65,59 @@ class DetectedFace:
 class Tracklet:
     """
     동일한 Track ID를 가진 얼굴들의 집합 (시간 연속성 보장)
+    메모리 최적화: 이미지 대신 임베딩만 저장
     """
     def __init__(self, track_id: int):
         self.track_id = track_id
-        self.faces: List[DetectedFace] = []
+        self.embeddings: List[np.ndarray] = []  # 이미지 대신 임베딩만 저장
+        self.best_face: Optional[DetectedFace] = None  # 썸네일용 대표 얼굴 1개만
         self.avg_embedding: Optional[np.ndarray] = None
+        self.appearance_count: int = 0
+        self.first_frame: Optional[int] = None
+        self.last_frame: Optional[int] = None
 
     def add_face(self, face: DetectedFace):
-        self.faces.append(face)
+        """얼굴 추가 - 임베딩만 저장하고 이미지는 썸네일 선택용으로만 사용"""
+        self.appearance_count += 1
+
+        if self.first_frame is None:
+            self.first_frame = face.frame_idx
+        self.last_frame = face.frame_idx
+
+        # 임베딩이 있으면 저장
+        if face.embedding is not None:
+            self.embeddings.append(face.embedding)
+
+        # 대표 얼굴 업데이트 (선명도 기준)
+        if self.best_face is None or face.clarity > self.best_face.clarity:
+            # 기존 best_face 이미지 메모리 해제
+            if self.best_face is not None:
+                self.best_face.face_img = None
+            self.best_face = face
+        else:
+            # 선택되지 않은 얼굴 이미지 즉시 삭제
+            face.face_img = None
 
     def compute_average_embedding(self):
-        """Tracklet 내 얼굴들의 평균 임베딩 계산"""
-        if not self.faces:
-            return
-        
-        # 임베딩이 있는 얼굴만 필터링
-        valid_embeddings = [f.embedding for f in self.faces if f.embedding is not None]
-        if not valid_embeddings:
+        """평균 임베딩 계산 후 개별 임베딩 삭제"""
+        if not self.embeddings:
             return
 
         # 평균 계산 및 정규화
-        avg_emb = np.mean(valid_embeddings, axis=0)
+        avg_emb = np.mean(self.embeddings, axis=0)
         self.avg_embedding = normalize(avg_emb.reshape(1, -1))[0]
+
+        # 메모리 절약: 개별 임베딩 삭제
+        self.embeddings = []
 
 
 class FaceDetectionPipeline:
     """얼굴 감지 및 인식 파이프라인 (ArcFace + Tracklet Clustering)"""
+
+    # 청크 기반 처리 설정 (성능 우선)
+    CHUNK_SIZE = 1500  # 1500 프레임씩 처리 (속도 향상)
+    MEMORY_CHECK_INTERVAL = 200  # 200 프레임마다 메모리 체크
+    MEMORY_LIMIT_GB = 7.0  # 7GB 초과 시 강제 GC
 
     def __init__(
         self,
@@ -99,6 +126,7 @@ class FaceDetectionPipeline:
         sample_rate: int = 1  # Tracking을 위해 기본적으로 모든 프레임 처리 권장
     ):
         self.sample_rate = sample_rate
+        self.frames_processed = 0
 
         # YOLO 모델 경로
         if yolo_model_path is None:
@@ -141,74 +169,96 @@ class FaceDetectionPipeline:
         except Exception:
             return 0.0
 
-    def process_video(
+    def _check_memory_usage(self):
+        """메모리 사용량 체크 및 자동 정리"""
+        import psutil
+        import gc
+
+        process = psutil.Process()
+        memory_gb = process.memory_info().rss / (1024 ** 3)
+
+        if memory_gb > self.MEMORY_LIMIT_GB:
+            logger.warning(f"Memory usage high: {memory_gb:.2f} GB, forcing garbage collection")
+            gc.collect()
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+
+        return memory_gb
+
+    def _process_chunk(
         self,
         video_path: str,
-        output_dir: str,
-        conf_threshold: float = 0.5,
-        sim_threshold: float = 0.6  # 같은 사람으로 판단할 유사도 임계값 (ArcFace는 보통 0.3~0.6)
-    ) -> List[Dict]:
+        start_frame: int,
+        end_frame: int,
+        tracklets: Dict[int, Tracklet],
+        conf_threshold: float = 0.5
+    ) -> tuple:
         """
-        전체 파이프라인 실행: Tracking -> Embedding -> Tracklet Clustering
-        """
-        logger.info(f"Starting advanced face analysis for {video_path}")
+        청크 단위로 프레임 처리 (메모리 효율적)
 
-        # 1. Video Tracking (YOLO)
-        # track() 메서드는 제너레이터로 사용하여 메모리 효율적으로 처리 가능
-        # stream=True로 설정하여 프레임별로 처리
+        Args:
+            video_path: 비디오 경로
+            start_frame: 시작 프레임 인덱스
+            end_frame: 종료 프레임 인덱스
+            tracklets: Tracklet 딕셔너리 (누적)
+            conf_threshold: YOLO confidence threshold
+
+        Returns:
+            (embedding_success, embedding_fail) 튜플
+        """
+        cap = cv2.VideoCapture(video_path)
+        cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+
+        embedding_success = 0
+        embedding_fail = 0
+
+        # YOLO tracking 실행 (청크 범위만)
+        # stream=True로 설정하여 메모리 효율적으로 처리
         results = self.yolo_model.track(
             source=video_path,
             conf=conf_threshold,
-            persist=True,  # 객체 추적 유지
+            persist=True,
             verbose=False,
-            stream=True,
-            vid_stride=self.sample_rate
+            stream=True,  # 메모리 효율적 스트리밍
+            vid_stride=self.sample_rate,
+            device=self.device,
+            half=True,  # FP16 사용 (GPU 성능 향상)
+            imgsz=640,
+            batch=16  # 배치 크기 증가 (GPU 활용도 향상)
         )
 
-        # Tracklet 딕셔너리: {track_id: Tracklet}
-        tracklets: Dict[int, Tracklet] = {}
+        # 청크 범위 내 프레임만 처리
+        for idx, result in enumerate(results):
+            frame_idx = start_frame + (idx * self.sample_rate)
+            if frame_idx >= end_frame:
+                break
 
-        frame_idx = 0
-        embedding_success = 0  # 임베딩 추출 성공 카운터
-        embedding_fail = 0     # 임베딩 추출 실패 카운터
-        
-        # 프레임 순회
-        for result in results:
-            frame = result.orig_img  # 원본 프레임 (BGR)
-            
-            # 감지된 객체가 없으면 패스
+            frame = result.orig_img
+
             if not result.boxes:
-                frame_idx += self.sample_rate
                 continue
 
-            # 각 박스 처리
             for box in result.boxes:
-                # Track ID가 없는 경우(추적 실패)는 무시하거나 -1로 처리
                 if box.id is None:
                     continue
-                
+
                 track_id = int(box.id.item())
                 conf = float(box.conf.item())
-                
-                # Bounding Box
                 x1, y1, x2, y2 = map(int, box.xyxy[0].cpu().numpy())
-                
+
                 # 좌표 보정
                 h, w = frame.shape[:2]
                 x1, y1 = max(0, x1), max(0, y1)
                 x2, y2 = min(w, x2), min(h, y2)
-                
+
                 if x2 <= x1 or y2 <= y1:
                     continue
 
-                # 얼굴 이미지 크롭 (BGR 상태)
+                # 얼굴 크롭
                 face_img_bgr = frame[y1:y2, x1:x2]
                 face_img_rgb = cv2.cvtColor(face_img_bgr, cv2.COLOR_BGR2RGB)
-                
-                # 선명도 계산
                 clarity = self._calculate_clarity(face_img_rgb)
 
-                # DetectedFace 객체 생성
                 detected_face = DetectedFace(
                     frame_idx=frame_idx,
                     bbox=(x1, y1, x2, y2),
@@ -218,16 +268,12 @@ class FaceDetectionPipeline:
                     clarity=clarity
                 )
 
-                # 임베딩 추출 (ArcFace)
-                # InsightFace는 BGR 이미지를 입력으로 받음 (OpenCV 포맷)
+                # 임베딩 추출
                 if self.arcface_app:
                     try:
-                        # crop된 이미지를 충분히 크게 resize하여 InsightFace가 검출할 수 있도록 함
-                        # InsightFace는 최소 112x112 이상의 얼굴이 필요
                         h, w = face_img_bgr.shape[:2]
+                        min_size = 256
 
-                        # 얼굴 이미지가 너무 작으면 확대
-                        min_size = 256  # InsightFace가 검출하기 좋은 크기 (160→256)
                         if h < min_size or w < min_size:
                             scale = max(min_size / h, min_size / w)
                             new_w = int(w * scale)
@@ -236,29 +282,88 @@ class FaceDetectionPipeline:
                         else:
                             face_img_resized = face_img_bgr
 
-                        # InsightFace로 임베딩 추출
                         faces = self.arcface_app.get(face_img_resized)
                         if faces:
-                            # crop된 이미지 내에서 검출된 얼굴의 임베딩 사용
                             detected_face.embedding = faces[0].embedding
                             embedding_success += 1
                         else:
                             embedding_fail += 1
-                            logger.debug(f"InsightFace failed to detect face in crop (frame {frame_idx}, size {h}x{w})")
+                            logger.debug(f"InsightFace failed (frame {frame_idx})")
                     except Exception as e:
                         embedding_fail += 1
-                        logger.debug(f"Embedding extraction failed (frame {frame_idx}): {e}")
+                        logger.debug(f"Embedding failed (frame {frame_idx}): {e}")
 
                 # Tracklet에 추가
                 if track_id not in tracklets:
                     tracklets[track_id] = Tracklet(track_id)
-                
                 tracklets[track_id].add_face(detected_face)
 
-            frame_idx += self.sample_rate
+            # 메모리 체크
+            self.frames_processed += 1
+            if self.frames_processed % self.MEMORY_CHECK_INTERVAL == 0:
+                self._check_memory_usage()
+
+        cap.release()
+        return embedding_success, embedding_fail
+
+    def process_video(
+        self,
+        video_path: str,
+        output_dir: str,
+        conf_threshold: float = 0.5,
+        sim_threshold: float = 0.6,
+        progress_callback: Optional[callable] = None
+    ) -> List[Dict]:
+        """
+        전체 파이프라인 실행: Tracking -> Embedding -> Tracklet Clustering
+        청크 기반 처리로 메모리 효율 최적화
+        """
+        logger.info(f"Starting advanced face analysis for {video_path}")
+
+        # 비디오 정보 읽기
+        cap = cv2.VideoCapture(video_path)
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        cap.release()
+
+        logger.info(f"Total frames: {total_frames}, processing in chunks of {self.CHUNK_SIZE}")
+
+        # 청크 계산
+        num_chunks = (total_frames + self.CHUNK_SIZE - 1) // self.CHUNK_SIZE
+        tracklets: Dict[int, Tracklet] = {}
+
+        total_embedding_success = 0
+        total_embedding_fail = 0
+
+        # 청크별 처리
+        for chunk_idx in range(num_chunks):
+            start_frame = chunk_idx * self.CHUNK_SIZE
+            end_frame = min((chunk_idx + 1) * self.CHUNK_SIZE, total_frames)
+
+            logger.info(f"Processing chunk {chunk_idx + 1}/{num_chunks} (frames {start_frame}-{end_frame})")
+
+            # 청크 처리
+            success, fail = self._process_chunk(
+                video_path, start_frame, end_frame, tracklets, conf_threshold
+            )
+
+            total_embedding_success += success
+            total_embedding_fail += fail
+
+            # 진행률 콜백
+            if progress_callback:
+                progress_pct = int((end_frame / total_frames) * 100)
+                progress_callback(progress_pct, f"청크 {chunk_idx + 1}/{num_chunks} 처리 완료")
+
+            # 청크 간 메모리 정리
+            import gc
+            gc.collect()
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+
+            logger.info(f"Chunk {chunk_idx + 1} completed. Memory cleaned.")
 
         logger.info(f"Tracking completed. Found {len(tracklets)} tracklets.")
-        logger.info(f"Embedding extraction: {embedding_success} success, {embedding_fail} fail")
+        logger.info(f"Embedding extraction: {total_embedding_success} success, {total_embedding_fail} fail")
 
         # 2. Tracklet Clustering (HAC)
         # 각 Tracklet의 평균 임베딩 계산
@@ -292,6 +397,11 @@ class FaceDetectionPipeline:
                 # req_c: 추천되는 파티션 레벨
                 c, num_clust, req_c = FINCH(embeddings_array, distance='cosine', verbose=False)
 
+                # req_c가 None이면 마지막 레벨 사용
+                if req_c is None:
+                    req_c = len(num_clust) - 1
+                    logger.warning(f"FINCH req_c is None, using last level: {req_c}")
+
                 # 추천 레벨 사용 (자동으로 최적의 클러스터 수 결정)
                 labels = c[:, req_c]
 
@@ -324,26 +434,29 @@ class FaceDetectionPipeline:
         face_index = 1
 
         for cluster_id, cluster_tracklets in clusters.items():
-            # 클러스터 내 모든 얼굴 수집
-            all_faces_in_cluster = []
+            # 클러스터 내 최고 선명도 얼굴 선택 (best_face 사용)
+            best_face = None
+            best_clarity = 0
+
             for t in cluster_tracklets:
-                all_faces_in_cluster.extend(t.faces)
+                if t.best_face and t.best_face.clarity > best_clarity:
+                    best_face = t.best_face
+                    best_clarity = t.best_face.clarity
 
-            if not all_faces_in_cluster:
+            if not best_face:
                 continue
-
-            # 대표 썸네일 선택 (선명도 * 크기)
-            best_face = self.select_best_thumbnail(all_faces_in_cluster)
 
             # 썸네일 저장
             thumbnail_filename = f"face_{face_index}.jpg"
             thumbnail_path = os.path.join(output_dir, thumbnail_filename)
             self.save_thumbnail(best_face, thumbnail_path)
 
-            # 프레임 정보
-            frame_indices = [f.frame_idx for f in all_faces_in_cluster]
-            
-            # 대표 임베딩 (클러스터 내 모든 Tracklet 평균의 평균)
+            # 프레임 정보 수집 (first_frame, last_frame 사용)
+            all_first_frames = [t.first_frame for t in cluster_tracklets if t.first_frame is not None]
+            all_last_frames = [t.last_frame for t in cluster_tracklets if t.last_frame is not None]
+            total_appearances = sum(t.appearance_count for t in cluster_tracklets)
+
+            # 클러스터 평균 임베딩
             cluster_avg_emb = np.mean([t.avg_embedding for t in cluster_tracklets], axis=0)
             cluster_avg_emb = normalize(cluster_avg_emb.reshape(1, -1))[0]
 
@@ -351,11 +464,11 @@ class FaceDetectionPipeline:
                 'face_index': face_index,
                 'thumbnail_path': thumbnail_path,
                 'embedding': cluster_avg_emb.tolist(),
-                'appearance_count': len(all_faces_in_cluster),
-                'first_frame': min(frame_indices),
-                'last_frame': max(frame_indices)
+                'appearance_count': total_appearances,
+                'first_frame': min(all_first_frames) if all_first_frames else 0,
+                'last_frame': max(all_last_frames) if all_last_frames else 0
             })
-            
+
             face_index += 1
 
         return result_faces

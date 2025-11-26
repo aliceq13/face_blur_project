@@ -289,19 +289,15 @@ class VideoViewSet(viewsets.ModelViewSet):
         serializer = VideoProcessSerializer(data=request.data, context={'video': video})
         serializer.is_valid(raise_exception=True)
 
-        # TODO: Phase 4에서 Celery 작업 시작
-        # from apps.processing.tasks import process_video_task
-        # task = process_video_task.delay(str(video.id))
+        # Celery 작업 시작
+        from .tasks import process_video_blur_task
+        task = process_video_blur_task.delay(str(video.id))
 
-        # 현재는 상태만 변경
-        video.status = 'processing'
-        video.save()
-
-        # ProcessingJob 생성 (임시)
+        # ProcessingJob 생성
         job = ProcessingJob.objects.create(
             video=video,
             job_type='video_processing',
-            celery_task_id='temp-task-id',  # TODO: Celery task ID
+            celery_task_id=task.id,
             status='pending'
         )
 

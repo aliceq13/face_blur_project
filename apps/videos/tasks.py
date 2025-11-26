@@ -15,11 +15,17 @@ from celery import shared_task
 from django.conf import settings
 from .models import Video, Face, ProcessingJob
 from .face_detection import FaceDetectionPipeline
+from .memory_monitor import MemoryMonitor
 
 logger = logging.getLogger(__name__)
 
 
-@shared_task(bind=True, max_retries=3)
+@shared_task(
+    bind=True,
+    max_retries=1,
+    soft_time_limit=3600,  # 60분 soft limit (정상 종료)
+    time_limit=3700,       # 61분 hard limit (강제 종료)
+)
 def analyze_faces_task(self, video_id: str):
     """
     비디오 얼굴 분석 Celery Task
@@ -53,6 +59,10 @@ def analyze_faces_task(self, video_id: str):
         Exception: 처리 중 오류 발생 시 재시도
     """
     logger.info(f"[Task {self.request.id}] Starting face analysis for video {video_id}")
+
+    # 메모리 모니터 초기화 (7GB 제한)
+    memory_monitor = MemoryMonitor(limit_gb=7.0, warning_threshold=0.85)
+    memory_monitor.log_usage("Task start")
 
     try:
         # ====================================================================
@@ -143,11 +153,13 @@ def analyze_faces_task(self, video_id: str):
         # 6. FaceDetectionPipeline 실행
         # ====================================================================
         logger.info("Initializing FaceDetectionPipeline...")
+        memory_monitor.log_usage("Before pipeline init")
+
         pipeline = FaceDetectionPipeline(
             # yolo_model_path는 None으로 설정하여 settings.YOLO_FACE_MODEL_PATH 사용
             yolo_model_path=None,
             device='auto',  # CUDA 사용 가능하면 자동으로 사용
-            sample_rate=1   # 모든 프레임 분석 (1프레임마다)
+            sample_rate=3   # 3프레임마다 분석 (성능과 품질 균형)
         )
 
         # 진행률 업데이트: 10%
@@ -157,15 +169,39 @@ def analyze_faces_task(self, video_id: str):
         job.save(update_fields=['progress'])
         self.update_state(state='PROGRESS', meta={'progress': 10})
 
+        memory_monitor.log_usage("After pipeline init")
+
+        # 진행률 콜백 함수
+        def update_progress(percent: int, message: str = ""):
+            """진행률 업데이트 콜백"""
+            # 10% (초기화) + 60% (처리) = 70%
+            actual_percent = 10 + int(percent * 0.6)
+
+            video.progress = actual_percent
+            video.save(update_fields=['progress'])
+            job.progress = actual_percent
+            job.save(update_fields=['progress'])
+            self.update_state(state='PROGRESS', meta={
+                'progress': actual_percent,
+                'message': message
+            })
+
+            logger.info(f"Progress: {actual_percent}% - {message}")
+
+            # 메모리 체크
+            memory_monitor.check_and_cleanup()
+
         logger.info("Running face detection pipeline...")
         detected_faces = pipeline.process_video(
             video_path=video_path,
             output_dir=thumbnail_dir,
             conf_threshold=0.5,  # YOLO 신뢰도 임계값
-            sim_threshold=0.6    # ArcFace 유사도 임계값 (같은 사람 판단)
+            sim_threshold=0.6,   # ArcFace 유사도 임계값 (같은 사람 판단)
+            progress_callback=update_progress
         )
 
         logger.info(f"Pipeline completed: {len(detected_faces)} unique faces found")
+        memory_monitor.log_usage("After pipeline")
 
         # 진행률 업데이트: 70%
         video.progress = 70
@@ -306,38 +342,153 @@ def analyze_faces_task(self, video_id: str):
         except Exception as e:
             logger.error(f"Failed to update ProcessingJob: {e}")
 
-        # Celery 재시도 (최대 3회, 지수 백오프)
-        raise self.retry(exc=exc, countdown=60 * (2 ** self.request.retries))
+        # Celery 재시도 (최대 1회, 지수 백오프)
+        if self.request.retries < self.max_retries:
+            raise self.retry(exc=exc, countdown=60 * (2 ** self.request.retries))
+        else:
+            # 재시도 횟수 초과 시 최종 실패 처리
+            raise exc
 
 
 @shared_task(bind=True, max_retries=3)
 def process_video_blur_task(self, video_id: str):
     """
-    비디오 블러 처리 Celery Task (Phase 4에서 구현 예정)
-
+    비디오 블러 처리 Celery Task
+    
     처리 흐름:
     1. Video 및 Face 데이터 로드
-    2. is_blurred=True인 얼굴들의 위치 정보 수집
-    3. 비디오 전체 프레임 순회하며 블러 처리
-    4. 처리된 비디오 저장
-    5. Video.processed_file_url 업데이트
-    6. 상태를 'completed'로 변경
-
-    Args:
-        video_id: Video 모델 UUID (문자열)
-
-    Returns:
-        {
-            'video_id': str,
-            'processed_file_url': str,
+    2. VideoBlurrer 초기화
+    3. 비디오 처리 (블러링)
+    4. 결과 저장 및 상태 업데이트
+    """
+    from .video_blurring import VideoBlurrer
+    
+    logger.info(f"[Task {self.request.id}] Starting video blur processing for video {video_id}")
+    
+    # 메모리 모니터 초기화
+    memory_monitor = MemoryMonitor(limit_gb=7.0, warning_threshold=0.85)
+    memory_monitor.log_usage("Blur task start")
+    
+    try:
+        # 1. Video 객체 로드
+        try:
+            video = Video.objects.get(id=video_id)
+        except Video.DoesNotExist:
+            raise ValueError(f"Video {video_id} does not exist")
+            
+        # 상태 업데이트: processing
+        video.status = 'processing'
+        video.progress = 0
+        video.save(update_fields=['status', 'progress'])
+        
+        # ProcessingJob 생성/업데이트
+        job, created = ProcessingJob.objects.get_or_create(
+            video=video,
+            job_type='video_processing',
+            defaults={
+                'status': 'started',
+                'progress': 0,
+                'celery_task_id': self.request.id
+            }
+        )
+        
+        if not created:
+            job.status = 'started'
+            job.progress = 0
+            job.celery_task_id = self.request.id
+            job.save(update_fields=['status', 'progress', 'celery_task_id'])
+            
+        # 2. 파일 경로 준비
+        video_filename = video.original_file_url.split('/')[-1]
+        video_path = os.path.join(settings.MEDIA_ROOT, 'videos', video_filename)
+        
+        if not os.path.exists(video_path):
+            raise FileNotFoundError(f"Video file not found: {video_path}")
+            
+        # 출력 파일 경로 설정
+        output_filename = f"processed_{video_filename}"
+        output_path = os.path.join(settings.MEDIA_ROOT, 'videos', 'processed', output_filename)
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        
+        # 3. Face 데이터 로드
+        faces = Face.objects.filter(video=video)
+        face_models = []
+        for face in faces:
+            if face.embedding:
+                face_models.append({
+                    'id': face.id,
+                    'embedding': face.embedding,
+                    'is_blurred': face.is_blurred
+                })
+        
+        logger.info(f"Loaded {len(face_models)} face models for matching")
+        
+        # 4. VideoBlurrer 실행
+        blurrer = VideoBlurrer(
+            yolo_model_path=str(settings.YOLO_FACE_MODEL_PATH),
+            device='auto'
+        )
+        
+        # 진행률 콜백
+        def update_progress(percent: int):
+            video.progress = percent
+            video.save(update_fields=['progress'])
+            job.progress = percent
+            job.save(update_fields=['progress'])
+            self.update_state(state='PROGRESS', meta={'progress': percent})
+            
+            # 메모리 체크
+            if percent % 10 == 0:
+                memory_monitor.check_and_cleanup()
+        
+        success = blurrer.process_video(
+            video_path=video_path,
+            output_path=output_path,
+            face_models=face_models,
+            progress_callback=update_progress
+        )
+        
+        if not success:
+            raise RuntimeError("Video processing failed")
+            
+        # 5. 완료 처리
+        # 처리된 파일 URL 업데이트
+        # /app/media/videos/processed/... -> /media/videos/processed/...
+        processed_url = output_path.replace(str(settings.MEDIA_ROOT), settings.MEDIA_URL.rstrip('/'))
+        
+        video.processed_file_url = processed_url
+        video.status = 'completed'
+        video.progress = 100
+        video.save(update_fields=['processed_file_url', 'status', 'progress'])
+        
+        job.status = 'success'
+        job.progress = 100
+        job.result_data = {'output_path': processed_url}
+        job.save(update_fields=['status', 'progress', 'result_data'])
+        
+        logger.info(f"[Task {self.request.id}] Video blur processing completed successfully")
+        
+        return {
+            'video_id': str(video.id),
+            'processed_file_url': processed_url,
             'status': 'success'
         }
-    """
-    logger.info(f"[Task {self.request.id}] Video blur processing not implemented yet")
-
-    # TODO: Phase 4에서 구현
-    # - OpenCV 또는 FFmpeg으로 프레임별 블러 처리
-    # - 진행률 업데이트
-    # - ProcessingJob 추적
-
-    raise NotImplementedError("Video blur processing will be implemented in Phase 4")
+        
+    except Exception as exc:
+        logger.error(f"[Task {self.request.id}] Video blur processing failed: {exc}", exc_info=True)
+        
+        # 실패 상태 업데이트
+        try:
+            video = Video.objects.get(id=video_id)
+            video.status = 'failed'
+            video.save(update_fields=['status'])
+            
+            job = ProcessingJob.objects.filter(video=video, job_type='video_processing').first()
+            if job:
+                job.status = 'failure'
+                job.error_message = str(exc)
+                job.save(update_fields=['status', 'error_message'])
+        except:
+            pass
+            
+        raise exc

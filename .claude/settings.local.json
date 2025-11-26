@@ -5,7 +5,8 @@
       "Bash(touch:*)",
       "Bash(docker-compose exec:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(docker-compose build:*)"
     ],
     "deny": [],
     "ask": []

@@ -12,7 +12,12 @@ Celery란?
 
 from __future__ import absolute_import, unicode_literals
 import os
+import gc
+import logging
 from celery import Celery
+from celery.signals import worker_process_init, task_prerun, task_postrun
+
+logger = logging.getLogger(__name__)
 
 # Django 설정 모듈 지정
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'face_blur_web.settings')
@@ -27,6 +32,66 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 # Django 앱들에서 tasks.py 파일을 자동으로 찾아 등록
 # apps/videos/tasks.py, apps/accounts/tasks.py 등
 app.autodiscover_tasks()
+
+
+# Worker 프로세스 초기화 시그널
+@worker_process_init.connect
+def init_worker(**kwargs):
+    """
+    Worker 프로세스 초기화 시 실행
+    - 메모리 정리
+    - GPU 캐시 초기화
+    """
+    logger.info("Worker process initialized, cleaning up memory")
+    gc.collect()
+
+    try:
+        import torch
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            logger.info("CUDA cache cleared")
+    except ImportError:
+        pass
+
+
+# Task 실행 전 시그널
+@task_prerun.connect
+def task_prerun_handler(sender=None, task_id=None, task=None, **kwargs):
+    """
+    Task 실행 전 메모리 상태 로깅
+    """
+    try:
+        import psutil
+        process = psutil.Process()
+        memory_gb = process.memory_info().rss / (1024 ** 3)
+        logger.info(f"[Task {task_id}] Starting. Memory usage: {memory_gb:.2f} GB")
+    except ImportError:
+        pass
+
+
+# Task 실행 후 시그널
+@task_postrun.connect
+def task_postrun_handler(sender=None, task_id=None, task=None, **kwargs):
+    """
+    Task 실행 후 메모리 정리
+    """
+    logger.info(f"[Task {task_id}] Completed. Cleaning up memory...")
+    gc.collect()
+
+    try:
+        import torch
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+    except ImportError:
+        pass
+
+    try:
+        import psutil
+        process = psutil.Process()
+        memory_gb = process.memory_info().rss / (1024 ** 3)
+        logger.info(f"[Task {task_id}] Memory after cleanup: {memory_gb:.2f} GB")
+    except ImportError:
+        pass
 
 
 @app.task(bind=True, ignore_result=True)

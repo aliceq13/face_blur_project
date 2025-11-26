@@ -185,18 +185,27 @@ services:
     container_name: faceblur_celery_worker
 
     # Celery 워커 실행
-    # -Q 옵션 제거하여 모든 큐(celery, default, video_processing)를 listen
-    command: celery -A face_blur_web worker -l info
+    # --max-tasks-per-child=1: 작업 1개 처리 후 워커 재시작 (메모리 누수 방지)
+    # --prefetch-multiplier=1: 한 번에 1개 작업만 가져옴
+    # --concurrency=1: 동시 실행 작업 수 (1개로 제한하여 메모리 안정성 확보)
+    command: celery -A face_blur_web worker -l info --max-tasks-per-child=1 --prefetch-multiplier=1 --concurrency=1
 
     volumes:
       - .:/app
       - media_volume:/app/media
       - ./models/yolov11s-face.pt:/app/models/yolov11s-face.pt:ro  # YOLO 모델 파일
 
+    # 메모리 제한 (Docker 레벨)
+    mem_limit: 8g
+    mem_reservation: 6g
+
     # GPU 지원 (얼굴 인식 AI 모델 실행용)
     deploy:
       resources:
+        limits:
+          memory: 8G
         reservations:
+          memory: 6G
           devices:
             - driver: nvidia
               count: 1
