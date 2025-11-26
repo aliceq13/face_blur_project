@@ -2,13 +2,13 @@
 """
 얼굴 감지 및 추적 파이프라인 (Refactored)
 
-이 모듈은 YOLO(Tracking) + ArcFace + HAC를 사용하여
+이 모듈은 YOLO(Tracking) + ArcFace + FINCH를 사용하여
 비디오에서 얼굴을 감지하고 동일 인물을 정교하게 그룹화합니다.
 
 개선 사항:
 1. FaceNet → ArcFace (InsightFace): 인식 정확도 대폭 향상
 2. Frame-based → Tracklet-based: 추적(Tracking) 정보를 활용하여 안정성 향상
-3. DBSCAN → HAC: 계층적 군집화로 클러스터링 성능 개선
+3. DBSCAN → HAC → FINCH: 파라미터 프리 클러스터링으로 성능 및 자동화 개선
 """
 
 import os
@@ -17,11 +17,19 @@ import torch
 import numpy as np
 from typing import List, Dict, Tuple, Optional
 from pathlib import Path
-from sklearn.cluster import AgglomerativeClustering
 from sklearn.preprocessing import normalize
 import logging
 import insightface
 from insightface.app import FaceAnalysis
+
+# FINCH: 파라미터 프리 클러스터링 (HAC 대체)
+try:
+    from finch import FINCH
+    FINCH_AVAILABLE = True
+except ImportError:
+    FINCH_AVAILABLE = False
+    from sklearn.cluster import AgglomerativeClustering
+    logging.warning("FINCH not available, falling back to AgglomerativeClustering")
 
 logger = logging.getLogger(__name__)
 
@@ -268,24 +276,39 @@ class FaceDetectionPipeline:
             return []
 
         # 클러스터링 실행
-        # distance_threshold: 같은 사람으로 볼 거리 (코사인 거리 기준)
-        # ArcFace의 경우 1 - cosine_similarity가 거리.
-        # 보통 threshold 0.4~0.6 정도가 적당 (엄격하게 하려면 낮게)
-
         # 1개의 tracklet만 있는 경우 클러스터링 불필요
         if len(valid_tracklets) == 1:
             logger.info("Only 1 tracklet found, skipping clustering.")
             labels = [0]  # 단일 클러스터로 처리
         else:
-            # 여기서는 안전하게 cosine distance 사용
-            clustering = AgglomerativeClustering(
-                n_clusters=None,
-                distance_threshold=1.0 - sim_threshold,  # 거리 임계값
-                metric='cosine',
-                linkage='average'  # 평균 연결법 (안정적)
-            )
+            # FINCH 사용 가능 시 FINCH로 클러스터링 (파라미터 프리)
+            if FINCH_AVAILABLE:
+                logger.info("Using FINCH clustering (parameter-free)")
+                embeddings_array = np.array(embeddings)
 
-            labels = clustering.fit_predict(embeddings)
+                # FINCH 실행: 완전 자동, 파라미터 조정 불필요
+                # c: 각 계층의 클러스터 레이블 (n_samples, n_partitions)
+                # num_clust: 각 계층의 클러스터 수
+                # req_c: 추천되는 파티션 레벨
+                c, num_clust, req_c = FINCH(embeddings_array, distance='cosine', verbose=False)
+
+                # 추천 레벨 사용 (자동으로 최적의 클러스터 수 결정)
+                labels = c[:, req_c]
+
+                logger.info(f"FINCH clustering completed: {num_clust[req_c]} unique persons found (level {req_c})")
+            else:
+                # Fallback: HAC (기존 방식)
+                logger.info("Using AgglomerativeClustering (HAC) as fallback")
+                # distance_threshold: 같은 사람으로 볼 거리 (코사인 거리 기준)
+                # ArcFace의 경우 1 - cosine_similarity가 거리.
+                # 보통 threshold 0.4~0.6 정도가 적당 (엄격하게 하려면 낮게)
+                clustering = AgglomerativeClustering(
+                    n_clusters=None,
+                    distance_threshold=1.0 - sim_threshold,  # 거리 임계값
+                    metric='cosine',
+                    linkage='average'  # 평균 연결법 (안정적)
+                )
+                labels = clustering.fit_predict(embeddings)
         
         # 클러스터별 그룹화
         clusters: Dict[int, List[Tracklet]] = {}
