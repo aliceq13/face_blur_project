@@ -9,7 +9,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import default_storage
@@ -104,7 +104,7 @@ class VideoViewSet(viewsets.ModelViewSet):
     - POST /api/videos/{id}/start_processing/ : 영상 처리 시작
     """
     permission_classes = [AllowAny]  # 개발 중: 로그인 없이 테스트 가능
-    parser_classes = (MultiPartParser, FormParser)  # 파일 업로드 지원
+    parser_classes = (MultiPartParser, FormParser, JSONParser)  # 파일 업로드 및 JSON 요청 지원
 
     def get_queryset(self):
         """

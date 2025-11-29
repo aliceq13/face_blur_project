@@ -341,9 +341,9 @@ CELERY_TASK_SERIALIZER = 'json'          # 작업 직렬화 형식
 CELERY_RESULT_SERIALIZER = 'json'        # 결과 직렬화 형식
 CELERY_TIMEZONE = TIME_ZONE              # 타임존
 
-# 작업 시간 제한 (초) - 1시간 제한 (성능 최적화 후)
-CELERY_TASK_TIME_LIMIT = 3700  # 61분 hard limit (강제 종료)
-CELERY_TASK_SOFT_TIME_LIMIT = 3600  # 60분 soft limit (정상 종료)
+# 작업 시간 제한 (초) - 3시간 제한 (긴 영상 지원)
+CELERY_TASK_TIME_LIMIT = 10900  # 3시간 1분 hard limit (강제 종료)
+CELERY_TASK_SOFT_TIME_LIMIT = 10800  # 3시간 soft limit (정상 종료)
 
 # Worker 설정
 CELERY_WORKER_MAX_TASKS_PER_CHILD = 1  # 작업 1개 처리 후 워커 재시작 (메모리 누수 방지)

@@ -21,6 +21,7 @@ from sklearn.preprocessing import normalize
 import logging
 import insightface
 from insightface.app import FaceAnalysis
+from .adaface_wrapper import AdaFaceWrapper
 
 # FINCH: 파라미터 프리 클러스터링 (HAC 대체)
 try:
@@ -147,17 +148,34 @@ class FaceDetectionPipeline:
         self.yolo_model.to(self.device)
         logger.info(f"YOLO model loaded from {yolo_model_path}")
 
-        # 2. InsightFace ArcFace 모델 로드 (Recognition)
-        # buffalo_l: 2023년 기준 성능 좋은 기본 모델 (Detection+Recognition 포함)
-        # 여기서는 Recognition(ArcFace) 기능만 주로 활용
+        # 2. InsightFace (Detection용)
+        # 3. AdaFace (Recognition용)
         try:
             self.arcface_app = FaceAnalysis(name='buffalo_l', providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
-            # det_size를 작게 설정하여 작은 crop 이미지에서도 검출 가능하게 함
-            self.arcface_app.prepare(ctx_id=0 if self.device == 'cuda' else -1, det_size=(160, 160))
-            logger.info("InsightFace (ArcFace) model loaded")
+            self.arcface_app.prepare(ctx_id=0 if self.device == 'cuda' else -1, det_size=(640, 640))
+            
+            # AdaFace 로드
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            # ViT 모델 사용
+            weight_path = os.path.join(base_dir, 'weights', 'adaface_vit_base_kprpe_webface4m.pt')
+            
+            # 만약 ViT 파일이 없으면 IR50으로 폴백
+            if not os.path.exists(weight_path):
+                # 혹시 ckpt로 저장했을 수도 있으니 확인
+                ckpt_path = os.path.join(base_dir, 'weights', 'adaface_vit_base_kprpe_webface4m.ckpt')
+                if os.path.exists(ckpt_path):
+                    weight_path = ckpt_path
+                else:
+                    logger.warning(f"ViT weights not found at {weight_path}, falling back to IR-50")
+                    weight_path = os.path.join(base_dir, 'weights', 'adaface_ir50_ms1mv2.ckpt')
+                
+            self.adaface_model = AdaFaceWrapper(weight_path, device=self.device)
+            
+            logger.info(f"Models loaded: YOLO, InsightFace(Det), AdaFace(Rec) - {os.path.basename(weight_path)}")
         except Exception as e:
-            logger.warning(f"Failed to load InsightFace: {e}. Make sure onnxruntime is installed.")
+            logger.warning(f"Failed to load models: {e}")
             self.arcface_app = None
+            self.adaface_model = None
 
     def _calculate_clarity(self, img: np.ndarray) -> float:
         """이미지 선명도 계산 (Laplacian Variance)"""
@@ -216,7 +234,7 @@ class FaceDetectionPipeline:
         # stream=True로 설정하여 메모리 효율적으로 처리
         results = self.yolo_model.track(
             source=video_path,
-            conf=conf_threshold,
+            conf=0.4,  # Lower threshold
             persist=True,
             verbose=False,
             stream=True,  # 메모리 효율적 스트리밍
@@ -224,6 +242,7 @@ class FaceDetectionPipeline:
             device=self.device,
             half=True,  # FP16 사용 (GPU 성능 향상)
             imgsz=640,
+            tracker="botsort.yaml",
             batch=16  # 배치 크기 증가 (GPU 활용도 향상)
         )
 
@@ -268,31 +287,15 @@ class FaceDetectionPipeline:
                     clarity=clarity
                 )
 
-                # 임베딩 추출
-                if self.arcface_app:
-                    try:
-                        h, w = face_img_bgr.shape[:2]
-                        min_size = 256
-
-                        if h < min_size or w < min_size:
-                            scale = max(min_size / h, min_size / w)
-                            new_w = int(w * scale)
-                            new_h = int(h * scale)
-                            face_img_resized = cv2.resize(face_img_bgr, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
-                        else:
-                            face_img_resized = face_img_bgr
-
-                        faces = self.arcface_app.get(face_img_resized)
-                        if faces:
-                            detected_face.embedding = faces[0].embedding
-                            embedding_success += 1
-                        else:
-                            embedding_fail += 1
-                            logger.debug(f"InsightFace failed (frame {frame_idx})")
-                    except Exception as e:
+                # 임베딩 추출 (AdaFace)
+                if self.adaface_model:
+                    embedding = self.adaface_model.get_embedding(face_img_bgr)
+                    if embedding is not None:
+                        detected_face.embedding = embedding
+                        embedding_success += 1
+                    else:
                         embedding_fail += 1
-                        logger.debug(f"Embedding failed (frame {frame_idx}): {e}")
-
+                
                 # Tracklet에 추가
                 if track_id not in tracklets:
                     tracklets[track_id] = Tracklet(track_id)

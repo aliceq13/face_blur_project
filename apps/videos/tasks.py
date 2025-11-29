@@ -23,8 +23,8 @@ logger = logging.getLogger(__name__)
 @shared_task(
     bind=True,
     max_retries=1,
-    soft_time_limit=3600,  # 60분 soft limit (정상 종료)
-    time_limit=3700,       # 61분 hard limit (강제 종료)
+    soft_time_limit=10800,  # 3시간 soft limit
+    time_limit=10900,       # 3시간 1분 hard limit
 )
 def analyze_faces_task(self, video_id: str):
     """
@@ -159,7 +159,7 @@ def analyze_faces_task(self, video_id: str):
             # yolo_model_path는 None으로 설정하여 settings.YOLO_FACE_MODEL_PATH 사용
             yolo_model_path=None,
             device='auto',  # CUDA 사용 가능하면 자동으로 사용
-            sample_rate=3   # 3프레임마다 분석 (성능과 품질 균형)
+            sample_rate=1   # 모든 프레임 분석 (Tracking 정확도 향상)
         )
 
         # 진행률 업데이트: 10%
@@ -235,6 +235,7 @@ def analyze_faces_task(self, video_id: str):
                 last_frame=face_data['last_frame'],
                 is_blurred=True  # 기본값: 블러 처리 대상
             )
+            logger.info(f"Created face {face.id} (index {face.face_index}): is_blurred={face.is_blurred}")
             created_faces.append(face)
 
         logger.info(f"Created {len(created_faces)} Face instances")
@@ -455,6 +456,8 @@ def process_video_blur_task(self, video_id: str):
         # 처리된 파일 URL 업데이트
         # /app/media/videos/processed/... -> /media/videos/processed/...
         processed_url = output_path.replace(str(settings.MEDIA_ROOT), settings.MEDIA_URL.rstrip('/'))
+        
+        logger.info(f"Saving processed_file_url: {processed_url}")  # Debug log
         
         video.processed_file_url = processed_url
         video.status = 'completed'

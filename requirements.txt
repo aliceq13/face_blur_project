@@ -126,7 +126,7 @@ ultralytics
 # InsightFace: ArcFace 얼굴 인식 (FaceNet 대체)
 # - 더 높은 정확도의 얼굴 임베딩 추출
 insightface>=0.7.3
-onnxruntime>=1.16.0
+onnxruntime-gpu>=1.16.0
 
 # ============================================================================
 # 환경 변수 관리

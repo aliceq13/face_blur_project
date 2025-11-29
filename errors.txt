@@ -1,0 +1,1827 @@
+﻿
+faceblur_celery_worker  | [1;31m
+2025-11-26 18:01:03.739227163 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-26 18:01:04.279448806 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-26 18:01:04.298524623 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-26 18:01:04.321095226 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-26 18:01:04.416574522 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-26 18:01:45.304522449 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-26 18:01:45.900209553 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-26 18:01:45.923083927 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-26 18:01:45.944864141 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-26 18:01:46.033323213 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:00:22.925117041 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:00:23.500290604 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:00:23.534778054 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:00:23.557971021 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:00:23.727363281 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:00:51.103777420 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:00:51.636972182 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:00:51.659014838 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:00:51.682522372 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:00:51.774578409 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:22:04.660832584 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:22:05.213786677 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:22:05.242610226 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:22:05.264059223 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:22:05.436418277 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:25:11.754519181 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:25:13.137583535 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:25:14.217714792 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:25:14.241799218 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:25:14.332118596 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:36:12.916854371 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:36:13.435626531 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:36:13.458690413 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:36:13.488122252 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:36:13.591420897 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:39:16.163174770 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:39:16.668581070 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:39:16.697720906 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:39:16.719791195 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:39:16.811342022 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:54:12.947078600 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:54:13.538119386 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:54:13.565808807 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:54:13.585744792 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 11:54:13.769329586 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:01:23.670084950 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:01:24.204396356 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:01:24.232911415 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:01:24.256652427 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:01:24.325333696 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:15:01.249208762 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:15:01.809298179 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:15:01.840400993 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:15:01.866510257 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:15:02.035401560 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:18:10.840383079 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:18:11.384588026 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:18:11.416286080 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:18:11.439478992 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:18:11.503996693 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:22:48.599555129 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:22:49.129112211 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:22:49.170704821 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:22:49.197832383 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:22:49.308498709 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:26:03.208802944 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:26:03.728987902 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:26:03.758224344 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:26:03.785842832 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:26:03.886395112 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:40:59.639372603 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:41:00.239917370 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:41:00.273550189 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:41:00.298777238 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:41:00.480857529 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:54:01.803412334 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:54:02.384797576 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:54:02.414655345 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:54:02.437266830 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 12:54:02.614427466 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | ModuleN
+otFoundError: No module named 'ap
+ps.videos.iresnet'
+faceblur_celery_worker  | ModuleN
+otFoundError: No module named 'ap
+ps.videos.iresnet'
+faceblur_celery_worker  | ModuleN
+otFoundError: No module named 'ap
+ps.videos.iresnet'
+faceblur_celery_worker  | ModuleN
+otFoundError: No module named 'ap
+ps.videos.iresnet'
+faceblur_celery_worker  | ModuleN
+otFoundError: No module named 'ap
+ps.videos.iresnet'
+faceblur_celery_worker  | ModuleN
+otFoundError: No module named 'ap
+ps.videos.iresnet'
+faceblur_celery_worker  | ModuleN
+otFoundError: No module named 'ap
+ps.videos.iresnet'
+faceblur_celery_worker  | [1;31m
+2025-11-27 15:12:14.046838000 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 15:12:14.633584546 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 15:12:14.667919568 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 15:12:14.688952241 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 15:12:14.830920418 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:03:32.599180743 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:03:33.153484843 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:03:33.178468529 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:03:33.200273662 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:03:33.367088804 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:15:12.923289725 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:15:13.443887767 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:15:13.472926688 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:15:13.495660053 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:15:13.650481011 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:34:53.940047487 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:34:54.460455065 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:34:54.485639139 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:34:54.512094702 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:34:54.621490125 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:42:35.853026951 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:42:36.389236675 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:42:36.418358514 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:42:36.441956837 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:42:36.604663430 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:51:17.778954874 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:51:18.332990306 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:51:18.364781487 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:51:18.386399523 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:51:18.557127687 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:58:28.003829079 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:58:28.509051568 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:58:28.534454130 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:58:28.557736335 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 16:58:28.651892352 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 17:23:28.197573091 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 17:23:28.776853822 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 17:23:28.801209155 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 17:23:28.821937291 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 17:23:28.958010999 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 17:33:21.492097177 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 17:33:21.971283437 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 17:33:22.000216593 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 17:33:22.023313221 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | [1;31m
+2025-11-27 17:33:22.128410043 [E:
+onnxruntime:Default, provider_bri
+dge_ort.cc:2251 TryGetProviderInf
+o_CUDA] /onnxruntime_src/onnxrunt
+ime/core/session/provider_bridge_
+ort.cc:1844 onnxruntime::Provider
+& onnxruntime::ProviderLibrary::G
+et() [ONNXRuntimeError] : 1 : FAI
+L : Failed to load library libonn
+xruntime_providers_cuda.so with e
+rror: libcurand.so.10: cannot ope
+n shared object file: No such fil
+e or directory
+faceblur_celery_worker  | ERROR 2
+025-11-27 17:34:25,395 video_blur
+ring Video processing failed: can
+not access local variable 'frame_
+idx' where it is not associated w
+ith a value
+faceblur_celery_worker  | Unbound
+LocalError: cannot access local v
+ariable 'frame_idx' where it is n
+ot associated with a value
+faceblur_celery_worker  | [2025-1
+1-27 17:34:25,395: ERROR/ForkPool
+Worker-2] Video processing failed
+: cannot access local variable 'f
+rame_idx' where it is not associa
+ted with a value
+faceblur_celery_worker  | Unbound
+LocalError: cannot access local v
+ariable 'frame_idx' where it is n
+ot associated with a value
+faceblur_celery_worker  | ERROR 2
+025-11-27 17:34:25,402 tasks [Tas
+k ae5c191a-9400-46e9-b091-b241429
+b291d] Video blur processing fail
+ed: Video processing failed
+faceblur_celery_worker  |     rai
+se RuntimeError("Video processing
+ failed")
+faceblur_celery_worker  | Runtime
+Error: Video processing failed
+faceblur_celery_worker  | [2025-1
+1-27 17:34:25,402: ERROR/ForkPool
+Worker-2] [Task ae5c191a-9400-46e
+9-b091-b241429b291d] Video blur p
+rocessing failed: Video processin
+g failed
+faceblur_celery_worker  |     rai
+se RuntimeError("Video processing
+ failed")
+faceblur_celery_worker  | Runtime
+Error: Video processing failed
+faceblur_celery_worker  | [2025-1
+1-27 17:34:25,416: ERROR/ForkPool
+Worker-2] Task apps.videos.tasks.
+process_video_blur_task[ae5c191a-
+9400-46e9-b091-b241429b291d] rais
+ed unexpected: RuntimeError('Vide
+o processing failed')
+faceblur_celery_worker  |     rai
+se RuntimeError("Video processing
+ failed")
+faceblur_celery_worker  | Runtime
+Error: Video processing failed
+
+

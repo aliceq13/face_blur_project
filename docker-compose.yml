@@ -34,9 +34,9 @@ services:
 
     # 환경 변수
     environment:
-      POSTGRES_DB: faceblur_db           # 데이터베이스 이름
-      POSTGRES_USER: postgres             # 사용자명
-      POSTGRES_PASSWORD: postgres123      # 비밀번호 (운영환경에서 변경!)
+      POSTGRES_DB: faceblur_db # 데이터베이스 이름
+      POSTGRES_USER: postgres # 사용자명
+      POSTGRES_PASSWORD: postgres123 # 비밀번호 (운영환경에서 변경!)
 
     # 볼륨 (데이터 영구 저장)
     volumes:
@@ -48,7 +48,7 @@ services:
 
     # 헬스체크 (서비스가 정상 작동하는지 확인)
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -81,7 +81,7 @@ services:
 
     # 헬스체크
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -113,10 +113,10 @@ services:
 
     # 볼륨 (코드 동기화 - 개발 중 코드 변경 시 자동 반영)
     volumes:
-      - .:/app                                    # 현재 디렉토리를 /app에 마운트
-      - static_volume:/app/staticfiles            # Static 파일
-      - media_volume:/app/media                   # 업로드된 미디어 파일
-      - ./models/yolov11s-face.pt:/app/models/yolov11s-face.pt:ro  # YOLO 모델 파일 (읽기 전용)
+      - .:/app # 현재 디렉토리를 /app에 마운트
+      - static_volume:/app/staticfiles # Static 파일
+      - ./media:/app/media # 업로드된 미디어 파일 (로컬 폴더 바인딩)
+      - ./models/yolov11s-face.pt:/app/models/yolov11s-face.pt:ro # YOLO 모델 파일 (읽기 전용)
 
     # 포트 노출
     ports:
@@ -129,7 +129,7 @@ services:
           devices:
             - driver: nvidia
               count: 1
-              capabilities: [gpu]
+              capabilities: [ gpu ]
 
     # 환경 변수
     environment:
@@ -142,7 +142,7 @@ services:
       - DB_NAME=faceblur_db
       - DB_USER=postgres
       - DB_PASSWORD=postgres123
-      - DB_HOST=db                                # Docker 네트워크에서 'db' 서비스명으로 접근
+      - DB_HOST=db # Docker 네트워크에서 'db' 서비스명으로 접근
       - DB_PORT=5432
 
       # Redis 연결
@@ -160,7 +160,7 @@ services:
       # - AWS_STORAGE_BUCKET_NAME=faceblur-videos
       # - AWS_REGION=ap-northeast-2
 
-    # 의존성 (db와 redis가 먼저 시작되어야 함)
+      # 의존성 (db와 redis가 먼저 시작되어야 함)
     depends_on:
       db:
         condition: service_healthy
@@ -192,8 +192,8 @@ services:
 
     volumes:
       - .:/app
-      - media_volume:/app/media
-      - ./models/yolov11s-face.pt:/app/models/yolov11s-face.pt:ro  # YOLO 모델 파일
+      - ./media:/app/media
+      - ./models/yolov11s-face.pt:/app/models/yolov11s-face.pt:ro # YOLO 모델 파일
 
     # 메모리 제한 (Docker 레벨)
     mem_limit: 8g
@@ -209,7 +209,7 @@ services:
           devices:
             - driver: nvidia
               count: 1
-              capabilities: [gpu]
+              capabilities: [ gpu ]
 
     environment:
       - DB_ENGINE=django.db.backends.postgresql
@@ -248,10 +248,6 @@ volumes:
 
   # Django Static 파일 (CSS, JS, 이미지)
   static_volume:
-    driver: local
-
-  # 업로드된 미디어 파일 (영상, 썸네일)
-  media_volume:
     driver: local
 
 # ============================================================================
