@@ -413,11 +413,15 @@ class FaceDetectionPipeline:
                 D, I = index.search(embeddings_array, k_neighbors)
                 
                 # 3. HDBSCAN (진짜 zero-parameter)
+                # 작은 데이터셋에 대응하기 위해 동적 조정
+                min_cluster_size = max(2, min(5, len(embeddings_array) // 3))
+                min_samples_val = max(1, min(5, len(embeddings_array) // 5))
+                
                 clusterer = hdbscan.HDBSCAN(
-                    min_cluster_size=5,              # 최소 클러스터 크기 (도메인에 따라 5~50)
-                    min_samples=5,                   # 이걸 낮추면 더 보수적 클러스터링
+                    min_cluster_size=min_cluster_size,   # 최소 클러스터 크기 (동적 조정)
+                    min_samples=min_samples_val,         # 최소 샘플 수 (동적 조정)
                     metric='precomputed',
-                    cluster_selection_method='eom'   # 'leaf'로 바꾸면 더 작은 클러스터도 잡음
+                    cluster_selection_method='eom'       # 'leaf'로 바꾸면 더 작은 클러스터도 잡음
                 )
                 
                 # precomputed distance matrix 만들기 (HDBSCAN이 요구하는 형태)
