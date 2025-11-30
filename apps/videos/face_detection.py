@@ -400,32 +400,39 @@ class FaceDetectionPipeline:
                 # L2 정규화 (cosine similarity를 위해)
                 normalize(embeddings_array, norm='l2', copy=False)
                 
-                # 1. Faiss HNSW로 approximate k-NN 그래프 생성
+                # 1. Faiss HNSW로 approximate distance matrix (k는 안 정해도 됨)
                 d = embeddings_array.shape[1]
                 index = faiss.IndexHNSWFlat(d, 32)
                 index.hnsw.efConstruction = 64
-                index.hnsw.efSearch = 128  # 높을수록 정확하지만 느림
+                index.hnsw.efSearch = 128  # 이 값만 좀 크게 주면 거의 exact
                 index.add(embeddings_array)
                 
-                # 2. k=80 이웃 검색 (HDBSCAN이 알아서 최적 k 선택)
-                k_neighbors = min(80, len(embeddings_array) - 1)
+                # 2. 대략 50~100개 정도 이웃만 뽑아서 HDBSCAN에 넘김
+                #    (k를 안 정하는 꼼수, HDBSCAN이 알아서 씀)
+                k_neighbors = min(80, len(embeddings_array) - 1)  # 80이면 거의 충분함
                 D, I = index.search(embeddings_array, k_neighbors)
                 
-                # 3. HDBSCAN 클러스터링 (완전 자동)
+                # 3. HDBSCAN (진짜 zero-parameter)
                 clusterer = hdbscan.HDBSCAN(
-                    min_cluster_size=max(2, len(embeddings_array) // 20),  # 동적 조정
-                    min_samples=2,  # 보수적 클러스터링
+                    min_cluster_size=5,              # 최소 클러스터 크기 (도메인에 따라 5~50)
+                    min_samples=5,                   # 이걸 낮추면 더 보수적 클러스터링
                     metric='precomputed',
-                    cluster_selection_method='eom'  # Excess of Mass
+                    cluster_selection_method='eom'   # 'leaf'로 바꾸면 더 작은 클러스터도 잡음
                 )
                 
-                # precomputed distance matrix 생성
-                dist_matrix = D.copy()
+                # precomputed distance matrix 만들기 (HDBSCAN이 요구하는 형태)
+                dist_matrix = np.empty_like(D)
+                for i in range(len(D)):
+                    dist_matrix[i] = D[i]
+                # 자기 자신 거리는 0으로 강제
                 np.fill_diagonal(dist_matrix, 0)
                 
-                labels = clusterer.fit_predict(dist_matrix)
+                labels = clusterer.fit_predict(dist_matrix)  # -1 = noise
                 
                 # 노이즈(-1) 처리: 각 노이즈를 별도 클러스터로
+                num_clusters_before_noise = len(set(labels)) - (1 if -1 in labels else 0)
+                noise_count = list(labels).count(-1)
+                
                 if -1 in labels:
                     noise_indices = np.where(labels == -1)[0]
                     max_label = labels.max()
@@ -434,6 +441,7 @@ class FaceDetectionPipeline:
                 
                 num_clusters = len(set(labels))
                 logger.info(f"HDBSCAN clustering completed: {num_clusters} unique persons found")
+                logger.info(f"검출된 클러스터 수: {num_clusters_before_noise}, 노이즈 비율: {noise_count/len(labels):.2%}")
             
             # FINCH 사용 가능 시 FINCH로 클러스터링 (파라미터 프리)
             elif FINCH_AVAILABLE and clustering_method == 'finch':
