@@ -341,9 +341,24 @@ CELERY_TASK_SERIALIZER = 'json'          # 작업 직렬화 형식
 CELERY_RESULT_SERIALIZER = 'json'        # 결과 직렬화 형식
 CELERY_TIMEZONE = TIME_ZONE              # 타임존
 
-# 작업 시간 제한 (초) - 3시간 제한 (긴 영상 지원)
-CELERY_TASK_TIME_LIMIT = 10900  # 3시간 1분 hard limit (강제 종료)
-CELERY_TASK_SOFT_TIME_LIMIT = 10800  # 3시간 soft limit (정상 종료)
+# 작업 시간 제한 (초) - 5시간 제한 (긴 영상 지원)
+CELERY_TASK_TIME_LIMIT = 18000  # 5시간 (Hard limit)
+CELERY_TASK_SOFT_TIME_LIMIT = 17900  # 5시간 조금 안됨 (Soft limit)
+
+# Redis Visibility Timeout (중요: 작업 시간보다 길어야 함)
+# 작업이 길어지면 Redis가 작업 실패로 간주하고 재할당하는 것을 방지
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    'visibility_timeout': 21600,  # 6시간 (Time Limit보다 길어야 함)
+    'fanout_prefix': True,
+    'fanout_patterns': True,
+}
+
+# 작업 상태 추적
+CELERY_TASK_TRACK_STARTED = True
+
+# Face Recognition Model Selection
+# Options: 'arcface' (buffalo_l, Default), 'adaface' (ViT/IR50)
+FACE_RECOGNITION_MODEL = 'adaface'
 
 # Worker 설정
 CELERY_WORKER_MAX_TASKS_PER_CHILD = 1  # 작업 1개 처리 후 워커 재시작 (메모리 누수 방지)
