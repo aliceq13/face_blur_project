@@ -404,10 +404,10 @@ class FaceDetectionPipeline:
                 # HDBSCAN은 정규화된 embeddings를 직접 사용
                 
                 # HDBSCAN (진짜 zero-parameter)
-                # ✅ CRITICAL FIX: 원래 파라미터 값 복원 (동적 조정은 너무 약함)
+                # ✅ 파라미터 완화: 같은 사람을 여러 명으로 분리하는 문제 해결
                 clusterer = hdbscan.HDBSCAN(
-                    min_cluster_size=5,              # 최소 클러스터 크기 (원래 값)
-                    min_samples=5,                   # 최소 샘플 수 (원래 값)
+                    min_cluster_size=3,              # 5 → 3 (더 작은 그룹도 인정)
+                    min_samples=2,                   # 5 → 2 (경계 완화)
                     metric='euclidean',              # L2 정규화된 벡터는 euclidean ≈ cosine
                     cluster_selection_method='eom'   # 'leaf'로 바꾸면 더 작은 클러스터도 잡음
                 )
