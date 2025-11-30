@@ -50,16 +50,23 @@ class FaceRecognizer:
             elif self.model_name == 'adaface':
                 # Initialize AdaFace
                 base_dir = os.path.dirname(os.path.abspath(__file__))
-                # Try ViT first
-                weight_path = os.path.join(base_dir, 'weights', 'adaface_vit_base_kprpe_webface4m.pt')
+                # Try ViT-12M first (best performance)
+                weight_path = os.path.join(base_dir, 'weights', 'adaface_vit_base_kprpe_webface12m.pt')
                 
                 if not os.path.exists(weight_path):
-                    ckpt_path = os.path.join(base_dir, 'weights', 'adaface_vit_base_kprpe_webface4m.ckpt')
-                    if os.path.exists(ckpt_path):
-                        weight_path = ckpt_path
+                    # Fallback to ViT-4M
+                    weight_path_4m = os.path.join(base_dir, 'weights', 'adaface_vit_base_kprpe_webface4m.pt')
+                    if os.path.exists(weight_path_4m):
+                        weight_path = weight_path_4m
+                        logger.info("Using ViT-4M model (12M not found)")
                     else:
-                        logger.warning(f"ViT weights not found at {weight_path}, falling back to IR-50")
-                        weight_path = os.path.join(base_dir, 'weights', 'adaface_ir50_ms1mv2.ckpt')
+                        # Try .ckpt extension
+                        ckpt_path = os.path.join(base_dir, 'weights', 'adaface_vit_base_kprpe_webface12m.ckpt')
+                        if os.path.exists(ckpt_path):
+                            weight_path = ckpt_path
+                        else:
+                            logger.warning(f"ViT weights not found, falling back to IR-50")
+                            weight_path = os.path.join(base_dir, 'weights', 'adaface_ir50_ms1mv2.ckpt')
                 
                 self.model = AdaFaceWrapper(weight_path, device=self.device)
                 logger.info(f"AdaFace initialized from {weight_path}")
