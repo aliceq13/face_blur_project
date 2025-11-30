@@ -23,13 +23,14 @@ import logging
 # from insightface.app import FaceAnalysis
 from .adaface_wrapper import AdaFaceWrapper
 
+from sklearn.cluster import AgglomerativeClustering
+
 # FINCH: 파라미터 프리 클러스터링 (HAC 대체)
 try:
     from finch import FINCH
     FINCH_AVAILABLE = True
 except ImportError:
     FINCH_AVAILABLE = False
-    from sklearn.cluster import AgglomerativeClustering
     logging.warning("FINCH not available, falling back to AgglomerativeClustering")
 
 logger = logging.getLogger(__name__)
