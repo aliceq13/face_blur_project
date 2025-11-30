@@ -425,9 +425,17 @@ class FaceDetectionPipeline:
                 )
                 
                 # precomputed distance matrix 만들기 (HDBSCAN이 요구하는 형태)
-                dist_matrix = np.empty_like(D)
-                for i in range(len(D)):
-                    dist_matrix[i] = D[i]
+                # k-NN 그래프를 full symmetric distance matrix로 변환
+                n = len(embeddings_array)
+                dist_matrix = np.full((n, n), np.inf, dtype=np.float32)
+                
+                # k-NN 그래프에서 거리 채우기
+                for i in range(n):
+                    for j_idx, j in enumerate(I[i]):
+                        if j < n:  # 유효한 인덱스인지 확인
+                            dist_matrix[i, j] = D[i, j_idx]
+                            dist_matrix[j, i] = D[i, j_idx]  # 대칭 행렬로 만들기
+                
                 # 자기 자신 거리는 0으로 강제
                 np.fill_diagonal(dist_matrix, 0)
                 
