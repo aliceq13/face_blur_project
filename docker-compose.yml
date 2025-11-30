@@ -109,7 +109,7 @@ services:
     command: >
       sh -c "python manage.py migrate &&
              python manage.py collectstatic --noinput &&
-             gunicorn face_blur_web.wsgi:application --bind 0.0.0.0:8000 --workers 4 --timeout 120 --reload"
+             gunicorn face_blur_web.wsgi:application --bind 0.0.0.0:8000 --workers 4 --timeout 3600 --reload"
 
     # 볼륨 (코드 동기화 - 개발 중 코드 변경 시 자동 반영)
     volumes:

@@ -341,14 +341,15 @@ CELERY_TASK_SERIALIZER = 'json'          # 작업 직렬화 형식
 CELERY_RESULT_SERIALIZER = 'json'        # 결과 직렬화 형식
 CELERY_TIMEZONE = TIME_ZONE              # 타임존
 
-# 작업 시간 제한 (초) - 5시간 제한 (긴 영상 지원)
-CELERY_TASK_TIME_LIMIT = 18000  # 5시간 (Hard limit)
-CELERY_TASK_SOFT_TIME_LIMIT = 17900  # 5시간 조금 안됨 (Soft limit)
+# 작업 시간 제한 (초) - 무제한 (사용자 요청)
+CELERY_TASK_TIME_LIMIT = None
+CELERY_TASK_SOFT_TIME_LIMIT = None
 
 # Redis Visibility Timeout (중요: 작업 시간보다 길어야 함)
 # 작업이 길어지면 Redis가 작업 실패로 간주하고 재할당하는 것을 방지
+# 24시간으로 설정하여 사실상 무제한 지원
 CELERY_BROKER_TRANSPORT_OPTIONS = {
-    'visibility_timeout': 21600,  # 6시간 (Time Limit보다 길어야 함)
+    'visibility_timeout': 86400,  # 24시간
     'fanout_prefix': True,
     'fanout_patterns': True,
 }
