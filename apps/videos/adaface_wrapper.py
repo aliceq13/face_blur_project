@@ -78,8 +78,14 @@ class AdaFaceWrapper:
             # Inference
             with torch.no_grad():
                 embedding = self.model(face_tensor)
-                
-            return embedding.cpu().numpy()[0]
+            
+            # ✅ CRITICAL FIX: L2 정규화 (Cosine similarity를 위해 필수)
+            embedding = embedding.cpu().numpy()[0]
+            norm = np.linalg.norm(embedding)
+            if norm > 0:
+                embedding = embedding / norm
+            
+            return embedding
             
         except Exception as e:
             print(f"AdaFace inference failed: {e}")

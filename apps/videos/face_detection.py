@@ -394,35 +394,22 @@ class FaceDetectionPipeline:
         else:
             # HDBSCAN + Faiss: 2025 실무 표준 (가장 추천)
             if HDBSCAN_AVAILABLE and clustering_method == 'hdbscan':
-                logger.info("Using HDBSCAN with Faiss HNSW (state-of-the-art)")
+                logger.info("Using HDBSCAN clustering (state-of-the-art)")
                 embeddings_array = np.array(embeddings, dtype='float32')
                 
                 # L2 정규화 (cosine similarity를 위해)
                 normalize(embeddings_array, norm='l2', copy=False)
                 
-                # 1. Faiss HNSW로 approximate distance matrix (k는 안 정해도 됨)
-                d = embeddings_array.shape[1]
-                index = faiss.IndexHNSWFlat(d, 32)
-                index.hnsw.efConstruction = 64
-                index.hnsw.efSearch = 128  # 이 값만 좀 크게 주면 거의 exact
-                index.add(embeddings_array)
+                # ✅ CRITICAL FIX: Faiss 코드 제거 (사용하지 않으므로)
+                # HDBSCAN은 정규화된 embeddings를 직접 사용
                 
-                # 2. 대략 50~100개 정도 이웃만 뽑아서 HDBSCAN에 넘김
-                #    (k를 안 정하는 꼼수, HDBSCAN이 알아서 씀)
-                k_neighbors = min(80, len(embeddings_array) - 1)  # 80이면 거의 충분함
-                D, I = index.search(embeddings_array, k_neighbors)
-                
-                # 3. HDBSCAN (진짜 zero-parameter)
-                # 작은 데이터셋에 대응하기 위해 동적 조정
-                min_cluster_size = max(2, min(5, len(embeddings_array) // 3))
-                min_samples_val = max(1, min(5, len(embeddings_array) // 5))
-                
-                # HDBSCAN은 embeddings를 직접 사용 (precomputed 대신)
+                # HDBSCAN (진짜 zero-parameter)
+                # ✅ CRITICAL FIX: 원래 파라미터 값 복원 (동적 조정은 너무 약함)
                 clusterer = hdbscan.HDBSCAN(
-                    min_cluster_size=min_cluster_size,   # 최소 클러스터 크기 (동적 조정)
-                    min_samples=min_samples_val,         # 최소 샘플 수 (동적 조정)
-                    metric='euclidean',  # L2 정규화된 벡터는 euclidean = cosine
-                    cluster_selection_method='eom'       # 'leaf'로 바꾸면 더 작은 클러스터도 잡음
+                    min_cluster_size=5,              # 최소 클러스터 크기 (원래 값)
+                    min_samples=5,                   # 최소 샘플 수 (원래 값)
+                    metric='euclidean',              # L2 정규화된 벡터는 euclidean ≈ cosine
+                    cluster_selection_method='eom'   # 'leaf'로 바꾸면 더 작은 클러스터도 잡음
                 )
                 
                 labels = clusterer.fit_predict(embeddings_array)  # -1 = noise

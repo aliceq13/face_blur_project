@@ -233,7 +233,7 @@ class VideoBlurrer:
                         best_candidate_id = max(vote_counts, key=vote_counts.get)
                         vote_rate = vote_counts[best_candidate_id] / total_frames
                         
-                        if vote_rate > 0.4: # 40% 이상 일치 (완화됨)
+                        if vote_rate > 0.5: # ✅ 50% 이상 일치 (정확도 향상)
                             face_id = best_candidate_id
                             # 해당 인물의 블러 설정 따름
                             # face_models에서 is_blurred 찾기
