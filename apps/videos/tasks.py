@@ -176,6 +176,7 @@ def analyze_faces_task(self, video_id: str):
             """진행률 업데이트 콜백"""
             # 10% (초기화) + 60% (처리) = 70%
             actual_percent = 10 + int(percent * 0.6)
+            actual_percent = min(actual_percent, 100)  # Clamp to 100%
 
             video.progress = actual_percent
             video.save(update_fields=['progress'])
@@ -196,7 +197,8 @@ def analyze_faces_task(self, video_id: str):
             video_path=video_path,
             output_dir=thumbnail_dir,
             conf_threshold=0.5,  # YOLO 신뢰도 임계값
-            sim_threshold=0.6,   # ArcFace 유사도 임계값 (같은 사람 판단)
+            sim_threshold=0.9,   # ArcFace 유사도 임계값 (HAC용, 엄격하게)
+            clustering_method='hac', # HAC 클러스터링 사용
             progress_callback=update_progress
         )
 
@@ -230,6 +232,7 @@ def analyze_faces_task(self, video_id: str):
                 face_index=face_data['face_index'],
                 thumbnail_url=thumbnail_rel_path,
                 embedding=face_data['embedding'],  # JSON 필드 (list)
+                embeddings=face_data.get('embeddings', []),  # [NEW] Multi-Thumbnail embeddings
                 appearance_count=face_data['appearance_count'],
                 first_frame=face_data['first_frame'],
                 last_frame=face_data['last_frame'],
@@ -419,6 +422,7 @@ def process_video_blur_task(self, video_id: str):
                 face_models.append({
                     'id': face.id,
                     'embedding': face.embedding,
+                    'embeddings': face.embeddings,  # [NEW] Multi-Thumbnail embeddings
                     'is_blurred': face.is_blurred
                 })
         
@@ -432,6 +436,7 @@ def process_video_blur_task(self, video_id: str):
         
         # 진행률 콜백
         def update_progress(percent: int):
+            percent = min(percent, 100)  # Clamp to 100%
             video.progress = percent
             video.save(update_fields=['progress'])
             job.progress = percent

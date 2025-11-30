@@ -19,8 +19,8 @@ from typing import List, Dict, Tuple, Optional
 from pathlib import Path
 from sklearn.preprocessing import normalize
 import logging
-import insightface
-from insightface.app import FaceAnalysis
+# import insightface
+# from insightface.app import FaceAnalysis
 from .adaface_wrapper import AdaFaceWrapper
 
 # FINCH: 파라미터 프리 클러스터링 (HAC 대체)
@@ -71,33 +71,37 @@ class Tracklet:
     def __init__(self, track_id: int):
         self.track_id = track_id
         self.embeddings: List[np.ndarray] = []  # 이미지 대신 임베딩만 저장
-        self.best_face: Optional[DetectedFace] = None  # 썸네일용 대표 얼굴 1개만
+        self.top_faces: List[DetectedFace] = []  # 상위 3개 얼굴 저장 (Multi-Thumbnail)
         self.avg_embedding: Optional[np.ndarray] = None
         self.appearance_count: int = 0
         self.first_frame: Optional[int] = None
         self.last_frame: Optional[int] = None
 
     def add_face(self, face: DetectedFace):
-        """얼굴 추가 - 임베딩만 저장하고 이미지는 썸네일 선택용으로만 사용"""
+        """얼굴 추가 - 상위 3개 선명한 얼굴 유지"""
         self.appearance_count += 1
 
         if self.first_frame is None:
             self.first_frame = face.frame_idx
         self.last_frame = face.frame_idx
 
-        # 임베딩이 있으면 저장
+        # 임베딩이 있으면 저장 (평균 계산용)
         if face.embedding is not None:
             self.embeddings.append(face.embedding)
 
-        # 대표 얼굴 업데이트 (선명도 기준)
-        if self.best_face is None or face.clarity > self.best_face.clarity:
-            # 기존 best_face 이미지 메모리 해제
-            if self.best_face is not None:
-                self.best_face.face_img = None
-            self.best_face = face
-        else:
-            # 선택되지 않은 얼굴 이미지 즉시 삭제
-            face.face_img = None
+        # Top 3 얼굴 유지 로직
+        # 1. 일단 리스트에 추가
+        self.top_faces.append(face)
+        
+        # 2. 선명도 기준 내림차순 정렬
+        self.top_faces.sort(key=lambda x: x.clarity, reverse=True)
+        
+        # 3. 상위 3개만 남기고 나머지 이미지 메모리 해제
+        if len(self.top_faces) > 3:
+            removed_faces = self.top_faces[3:]
+            self.top_faces = self.top_faces[:3]
+            for rm_face in removed_faces:
+                rm_face.face_img = None  # 메모리 해제
 
     def compute_average_embedding(self):
         """평균 임베딩 계산 후 개별 임베딩 삭제"""
@@ -108,7 +112,7 @@ class Tracklet:
         avg_emb = np.mean(self.embeddings, axis=0)
         self.avg_embedding = normalize(avg_emb.reshape(1, -1))[0]
 
-        # 메모리 절약: 개별 임베딩 삭제
+        # 메모리 절약: 개별 임베딩 삭제 (Top 3 얼굴의 임베딩은 top_faces에 남아있음)
         self.embeddings = []
 
 
@@ -148,34 +152,20 @@ class FaceDetectionPipeline:
         self.yolo_model.to(self.device)
         logger.info(f"YOLO model loaded from {yolo_model_path}")
 
-        # 2. InsightFace (Detection용)
-        # 3. AdaFace (Recognition용)
+        # 2. Face Recognizer (ArcFace or AdaFace)
         try:
-            self.arcface_app = FaceAnalysis(name='buffalo_l', providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
-            self.arcface_app.prepare(ctx_id=0 if self.device == 'cuda' else -1, det_size=(640, 640))
+            from .face_recognizer import FaceRecognizer
+            from django.conf import settings
             
-            # AdaFace 로드
-            base_dir = os.path.dirname(os.path.abspath(__file__))
-            # ViT 모델 사용
-            weight_path = os.path.join(base_dir, 'weights', 'adaface_vit_base_kprpe_webface4m.pt')
+            self.recognizer = FaceRecognizer(
+                model_name=getattr(settings, 'FACE_RECOGNITION_MODEL', 'arcface'),
+                device=self.device
+            )
+            logger.info(f"FaceRecognizer initialized with model: {self.recognizer.model_name}")
             
-            # 만약 ViT 파일이 없으면 IR50으로 폴백
-            if not os.path.exists(weight_path):
-                # 혹시 ckpt로 저장했을 수도 있으니 확인
-                ckpt_path = os.path.join(base_dir, 'weights', 'adaface_vit_base_kprpe_webface4m.ckpt')
-                if os.path.exists(ckpt_path):
-                    weight_path = ckpt_path
-                else:
-                    logger.warning(f"ViT weights not found at {weight_path}, falling back to IR-50")
-                    weight_path = os.path.join(base_dir, 'weights', 'adaface_ir50_ms1mv2.ckpt')
-                
-            self.adaface_model = AdaFaceWrapper(weight_path, device=self.device)
-            
-            logger.info(f"Models loaded: YOLO, InsightFace(Det), AdaFace(Rec) - {os.path.basename(weight_path)}")
         except Exception as e:
-            logger.warning(f"Failed to load models: {e}")
-            self.arcface_app = None
-            self.adaface_model = None
+            logger.warning(f"Failed to load FaceRecognizer: {e}")
+            self.recognizer = None
 
     def _calculate_clarity(self, img: np.ndarray) -> float:
         """이미지 선명도 계산 (Laplacian Variance)"""
@@ -273,7 +263,7 @@ class FaceDetectionPipeline:
                 if x2 <= x1 or y2 <= y1:
                     continue
 
-                # 얼굴 크롭
+                # 얼굴 크롭 (Thumbnail용 - Tight Crop)
                 face_img_bgr = frame[y1:y2, x1:x2]
                 face_img_rgb = cv2.cvtColor(face_img_bgr, cv2.COLOR_BGR2RGB)
                 clarity = self._calculate_clarity(face_img_rgb)
@@ -287,9 +277,11 @@ class FaceDetectionPipeline:
                     clarity=clarity
                 )
 
-                # 임베딩 추출 (AdaFace)
-                if self.adaface_model:
-                    embedding = self.adaface_model.get_embedding(face_img_bgr)
+                # 임베딩 추출 (FaceRecognizer)
+                if self.recognizer:
+                    # AdaFace는 Tight Crop을 112x112로 리사이즈하여 사용하므로
+                    # 확장 크롭 없이 바로 전달합니다.
+                    embedding = self.recognizer.get_embedding(face_img_bgr)
                     if embedding is not None:
                         detected_face.embedding = embedding
                         embedding_success += 1
@@ -315,6 +307,7 @@ class FaceDetectionPipeline:
         output_dir: str,
         conf_threshold: float = 0.5,
         sim_threshold: float = 0.6,
+        clustering_method: str = 'finch',  # 'finch' or 'hac'
         progress_callback: Optional[callable] = None
     ) -> List[Dict]:
         """
@@ -390,7 +383,7 @@ class FaceDetectionPipeline:
             labels = [0]  # 단일 클러스터로 처리
         else:
             # FINCH 사용 가능 시 FINCH로 클러스터링 (파라미터 프리)
-            if FINCH_AVAILABLE:
+            if FINCH_AVAILABLE and clustering_method == 'finch':
                 logger.info("Using FINCH clustering (parameter-free)")
                 embeddings_array = np.array(embeddings)
 
@@ -410,8 +403,8 @@ class FaceDetectionPipeline:
 
                 logger.info(f"FINCH clustering completed: {num_clust[req_c]} unique persons found (level {req_c})")
             else:
-                # Fallback: HAC (기존 방식)
-                logger.info("Using AgglomerativeClustering (HAC) as fallback")
+                # Fallback: HAC (기존 방식) or Explicitly requested
+                logger.info(f"Using AgglomerativeClustering (HAC). Method: {clustering_method}")
                 # distance_threshold: 같은 사람으로 볼 거리 (코사인 거리 기준)
                 # ArcFace의 경우 1 - cosine_similarity가 거리.
                 # 보통 threshold 0.4~0.6 정도가 적당 (엄격하게 하려면 낮게)
@@ -437,19 +430,20 @@ class FaceDetectionPipeline:
         face_index = 1
 
         for cluster_id, cluster_tracklets in clusters.items():
-            # 클러스터 내 최고 선명도 얼굴 선택 (best_face 사용)
-            best_face = None
-            best_clarity = 0
-
+            # 클러스터 내 모든 Top 얼굴 수집
+            all_top_faces = []
             for t in cluster_tracklets:
-                if t.best_face and t.best_face.clarity > best_clarity:
-                    best_face = t.best_face
-                    best_clarity = t.best_face.clarity
+                all_top_faces.extend(t.top_faces)
 
-            if not best_face:
+            if not all_top_faces:
                 continue
 
-            # 썸네일 저장
+            # 전체에서 다시 선명도 순 정렬하여 최종 Top 3 선정
+            all_top_faces.sort(key=lambda x: x.clarity, reverse=True)
+            final_top_3 = all_top_faces[:3]
+            best_face = final_top_3[0]
+
+            # 썸네일 저장 (가장 선명한 1장)
             thumbnail_filename = f"face_{face_index}.jpg"
             thumbnail_path = os.path.join(output_dir, thumbnail_filename)
             self.save_thumbnail(best_face, thumbnail_path)
@@ -459,14 +453,18 @@ class FaceDetectionPipeline:
             all_last_frames = [t.last_frame for t in cluster_tracklets if t.last_frame is not None]
             total_appearances = sum(t.appearance_count for t in cluster_tracklets)
 
-            # 클러스터 평균 임베딩
+            # 클러스터 평균 임베딩 (기존 방식 유지)
             cluster_avg_emb = np.mean([t.avg_embedding for t in cluster_tracklets], axis=0)
             cluster_avg_emb = normalize(cluster_avg_emb.reshape(1, -1))[0]
 
+            # Top 3 임베딩 리스트 준비
+            top_embeddings = [face.embedding.tolist() for face in final_top_3 if face.embedding is not None]
+
             result_faces.append({
                 'face_index': face_index,
-                'thumbnail_path': thumbnail_path,
+                'thumbnail_path': thumbnail_path,  # tasks.py에서 이 키를 사용함
                 'embedding': cluster_avg_emb.tolist(),
+                'embeddings': top_embeddings,  # [NEW] 다중 임베딩
                 'appearance_count': total_appearances,
                 'first_frame': min(all_first_frames) if all_first_frames else 0,
                 'last_frame': max(all_last_frames) if all_last_frames else 0

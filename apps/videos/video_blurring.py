@@ -14,7 +14,7 @@ import logging
 import os
 import shutil
 from pathlib import Path
-from insightface.app import FaceAnalysis
+# from insightface.app import FaceAnalysis
 from sklearn.metrics.pairwise import cosine_similarity
 from ultralytics import YOLO
 
@@ -54,34 +54,26 @@ class VideoBlurrer:
         self.yolo_model = YOLO(yolo_model_path)
         self.yolo_model.to(self.device)
         
-        # 2. AdaFace 모델 로드 (매칭용)
+        # 2. Face Recognizer (ArcFace or AdaFace)
         try:
-            # 절대 경로 계산
-            base_dir = os.path.dirname(os.path.abspath(__file__))
-            # ViT 모델 사용 (사용자가 model.pt를 다운로드하여 이 이름으로 저장했다고 가정)
-            weight_path = os.path.join(base_dir, 'weights', 'adaface_vit_base_kprpe_webface4m.pt')
+            from .face_recognizer import FaceRecognizer
+            from django.conf import settings
             
-            # 만약 ViT 파일이 없으면 IR50으로 폴백 (안전장치)
-            if not os.path.exists(weight_path):
-                # 혹시 ckpt로 저장했을 수도 있으니 확인
-                ckpt_path = os.path.join(base_dir, 'weights', 'adaface_vit_base_kprpe_webface4m.ckpt')
-                if os.path.exists(ckpt_path):
-                    weight_path = ckpt_path
-                else:
-                    logger.warning(f"ViT weights not found at {weight_path}, falling back to IR-50")
-                    weight_path = os.path.join(base_dir, 'weights', 'adaface_ir50_ms1mv2.ckpt')
+            self.recognizer = FaceRecognizer(
+                model_name=getattr(settings, 'FACE_RECOGNITION_MODEL', 'arcface'),
+                device=self.device
+            )
+            logger.info(f"FaceRecognizer initialized with model: {self.recognizer.model_name}")
             
-            self.adaface_model = AdaFaceWrapper(weight_path, device=self.device)
-            logger.info(f"AdaFace model loaded from {weight_path}")
         except Exception as e:
-            logger.error(f"Failed to load AdaFace: {e}")
-            self.adaface_model = None
+            logger.error(f"Failed to load FaceRecognizer: {e}")
+            self.recognizer = None
 
     def _get_embedding(self, face_img: np.ndarray) -> Optional[np.ndarray]:
-        """얼굴 이미지에서 임베딩 추출 (AdaFace)"""
-        if self.adaface_model is None:
+        """얼굴 이미지에서 임베딩 추출"""
+        if self.recognizer is None:
             return None
-        return self.adaface_model.get_embedding(face_img)
+        return self.recognizer.get_embedding(face_img)
 
     def _match_face(self, current_embedding: np.ndarray, face_models: List[Dict], threshold: float = 0.9) -> Optional[Dict]:
         """현재 얼굴 임베딩과 DB 모델 비교"""
@@ -179,6 +171,7 @@ class VideoBlurrer:
             if progress_callback and frame_idx % 100 == 0:
                 # Pass 1은 전체 진행의 40% 차지
                 pct = int((frame_idx / total_frames) * 40)
+                pct = min(pct, 40)  # Clamp to 40%
                 progress_callback(pct)
                 
         cap.release()
@@ -193,23 +186,66 @@ class VideoBlurrer:
             face_id = None
             
             if len(embeddings) > 0:
-                # 평균 임베딩 계산
-                # (N, 512) or (N, 768) -> (512,) or (768,)
-                avg_embedding = np.mean(embeddings, axis=0)
+                # 3. Frame-Level Voting & Decision (Advanced Re-ID)
+                # 기존 Tracklet Averaging 대신, 각 프레임별로 투표를 진행하여 결정
+                # 이유: 평균값은 다양한 각도(옆모습 등)의 정보를 희석시킬 수 있음
                 
-                # 정규화 (Unit Vector)
-                norm = np.linalg.norm(avg_embedding)
-                if norm > 0:
-                    avg_embedding = avg_embedding / norm
-                    
-                    # 매칭 수행
-                    matched = self._match_face(avg_embedding, face_models, self.threshold)
-                    if matched:
-                        face_id = matched['id']
-                        is_blurred = matched['is_blurred']
-                        logger.debug(f"Track {track_id} matched to Face {face_id} (Blur: {is_blurred})")
+                vote_counts = {} # face_id -> vote_count
+                total_frames = len(embeddings)
+                
+                if total_frames > 0:
+                    # 각 프레임 임베딩에 대해 투표 진행
+                    for frame_emb in embeddings:
+                        # 정규화
+                        norm = np.linalg.norm(frame_emb)
+                        if norm > 0:
+                            frame_emb = frame_emb / norm
+                            
+                        # 이 프레임이 어떤 얼굴과 매칭되는지 확인 (Top 3 Multi-Thumbnail 비교)
+                        best_match_id = None
+                        max_sim = -1.0
+                        
+                        for face_model in face_models:
+                            # 타겟 얼굴의 모든 썸네일(Top 3)과 클러스터 평균 임베딩 비교
+                            target_embeddings = face_model.get('embeddings', [])[:]
+                            if face_model.get('embedding'):
+                                target_embeddings.append(face_model['embedding'])
+                                
+                            if not target_embeddings:
+                                continue
+                                
+                            for target_emb in target_embeddings:
+                                target_emb = np.array(target_emb)
+                                sim = np.dot(frame_emb, target_emb) # 이미 정규화됨
+                                
+                                if sim > max_sim:
+                                    max_sim = sim
+                                    best_match_id = face_model['id']
+                        
+                        # 투표 (임계값 0.9: 사용자 요청으로 조정)
+                        # 사용자 요청: "특정 임계값이 넘어가면 카운트"
+                        if max_sim > 0.9 and best_match_id is not None:
+                            vote_counts[best_match_id] = vote_counts.get(best_match_id, 0) + 1
+
+                    # 최종 결정: 투표율 50% 이상이면 해당 인물로 판단
+                    # 가장 많은 표를 받은 인물 선정
+                    if vote_counts:
+                        best_candidate_id = max(vote_counts, key=vote_counts.get)
+                        vote_rate = vote_counts[best_candidate_id] / total_frames
+                        
+                        if vote_rate > 0.4: # 40% 이상 일치 (완화됨)
+                            face_id = best_candidate_id
+                            # 해당 인물의 블러 설정 따름
+                            # face_models에서 is_blurred 찾기
+                            for fm in face_models:
+                                if fm['id'] == face_id:
+                                    is_blurred = fm['is_blurred']
+                                    break
+                            logger.info(f"Track {track_id} identified as Face {face_id} (Votes: {vote_counts[best_candidate_id]}/{total_frames}, Rate: {vote_rate:.2f})")
+                        else:
+                            logger.debug(f"Track {track_id} - Vote rate too low ({vote_rate:.2f} < 0.3). Treated as Unknown.")
                     else:
-                        logger.debug(f"Track {track_id} - No match found (Blur: True)")
+                        logger.debug(f"Track {track_id} - No votes. Treated as Unknown.")
             
             track_decisions[track_id] = {
                 'is_blurred': is_blurred,
@@ -649,6 +685,7 @@ class VideoBlurrer:
             if progress_callback and frame_idx % 100 == 0:
                 # Pass 2는 40% ~ 90% 구간
                 pct = 40 + int((frame_idx / total_frames) * 50)
+                pct = min(pct, 90)  # Clamp to 90%
                 progress_callback(pct)
                 
         cap.release()

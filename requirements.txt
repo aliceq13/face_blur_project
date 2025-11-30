@@ -123,10 +123,12 @@ finch-clust>=0.1.0
 # - YOLOv8/v11 얼굴 감지 모델 실행 (최신 버전 사용으로 YOLOv11 지원)
 ultralytics
 
-# InsightFace: ArcFace 얼굴 인식 (FaceNet 대체)
-# - 더 높은 정확도의 얼굴 임베딩 추출
-insightface>=0.7.3
-onnxruntime-gpu>=1.16.0
+# CVLface Dependencies
+albumentations
+imgaug
+lovely-tensors
+easydict
+scipy
 
 # ============================================================================
 # 환경 변수 관리
