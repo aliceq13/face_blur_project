@@ -417,29 +417,15 @@ class FaceDetectionPipeline:
                 min_cluster_size = max(2, min(5, len(embeddings_array) // 3))
                 min_samples_val = max(1, min(5, len(embeddings_array) // 5))
                 
+                # HDBSCAN은 embeddings를 직접 사용 (precomputed 대신)
                 clusterer = hdbscan.HDBSCAN(
                     min_cluster_size=min_cluster_size,   # 최소 클러스터 크기 (동적 조정)
                     min_samples=min_samples_val,         # 최소 샘플 수 (동적 조정)
-                    metric='precomputed',
+                    metric='euclidean',  # L2 정규화된 벡터는 euclidean = cosine
                     cluster_selection_method='eom'       # 'leaf'로 바꾸면 더 작은 클러스터도 잡음
                 )
                 
-                # precomputed distance matrix 만들기 (HDBSCAN이 요구하는 형태)
-                # k-NN 그래프를 full symmetric distance matrix로 변환
-                n = len(embeddings_array)
-                dist_matrix = np.full((n, n), np.inf, dtype=np.float32)
-                
-                # k-NN 그래프에서 거리 채우기
-                for i in range(n):
-                    for j_idx, j in enumerate(I[i]):
-                        if j < n:  # 유효한 인덱스인지 확인
-                            dist_matrix[i, j] = D[i, j_idx]
-                            dist_matrix[j, i] = D[i, j_idx]  # 대칭 행렬로 만들기
-                
-                # 자기 자신 거리는 0으로 강제
-                np.fill_diagonal(dist_matrix, 0)
-                
-                labels = clusterer.fit_predict(dist_matrix)  # -1 = noise
+                labels = clusterer.fit_predict(embeddings_array)  # -1 = noise
                 
                 # 노이즈(-1) 처리: 각 노이즈를 별도 클러스터로
                 num_clusters_before_noise = len(set(labels)) - (1 if -1 in labels else 0)
