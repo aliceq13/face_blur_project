@@ -119,6 +119,12 @@ scikit-learn==1.3.2
 # - 완전 자동 (파라미터 조정 불필요)
 finch-clust>=0.1.0
 
+# HDBSCAN: 밀도 기반 클러스터링 (2025 실무 표준)
+# - Faiss HNSW와 결합하여 빠른 k-NN 그래프 생성
+# - 완전 자동 클러스터 수 결정
+hdbscan>=0.8.33
+faiss-cpu>=1.7.4
+
 # Ultralytics: YOLO 구현체
 # - YOLOv8/v11 얼굴 감지 모델 실행 (최신 버전 사용으로 YOLOv11 지원)
 ultralytics

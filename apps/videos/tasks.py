@@ -197,8 +197,8 @@ def analyze_faces_task(self, video_id: str):
             video_path=video_path,
             output_dir=thumbnail_dir,
             conf_threshold=0.5,  # YOLO 신뢰도 임계값
-            sim_threshold=0.9,   # ArcFace 유사도 임계값 (HAC용, 엄격하게)
-            clustering_method='hac', # HAC 클러스터링 사용
+            sim_threshold=0.9,   # 유사도 임계값 (HAC 사용 시에만 적용)
+            clustering_method='hdbscan',  # HDBSCAN 클러스터링 사용 (2025 실무 표준)
             progress_callback=update_progress
         )
 

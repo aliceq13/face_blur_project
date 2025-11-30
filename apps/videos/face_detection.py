@@ -33,6 +33,15 @@ except ImportError:
     FINCH_AVAILABLE = False
     logging.warning("FINCH not available, falling back to AgglomerativeClustering")
 
+# HDBSCAN + Faiss: 2025 실무 표준 클러스터링
+try:
+    import faiss
+    import hdbscan
+    HDBSCAN_AVAILABLE = True
+except ImportError:
+    HDBSCAN_AVAILABLE = False
+    logging.warning("HDBSCAN or Faiss not available")
+
 logger = logging.getLogger(__name__)
 
 
@@ -383,8 +392,51 @@ class FaceDetectionPipeline:
             logger.info("Only 1 tracklet found, skipping clustering.")
             labels = [0]  # 단일 클러스터로 처리
         else:
+            # HDBSCAN + Faiss: 2025 실무 표준 (가장 추천)
+            if HDBSCAN_AVAILABLE and clustering_method == 'hdbscan':
+                logger.info("Using HDBSCAN with Faiss HNSW (state-of-the-art)")
+                embeddings_array = np.array(embeddings, dtype='float32')
+                
+                # L2 정규화 (cosine similarity를 위해)
+                normalize(embeddings_array, norm='l2', copy=False)
+                
+                # 1. Faiss HNSW로 approximate k-NN 그래프 생성
+                d = embeddings_array.shape[1]
+                index = faiss.IndexHNSWFlat(d, 32)
+                index.hnsw.efConstruction = 64
+                index.hnsw.efSearch = 128  # 높을수록 정확하지만 느림
+                index.add(embeddings_array)
+                
+                # 2. k=80 이웃 검색 (HDBSCAN이 알아서 최적 k 선택)
+                k_neighbors = min(80, len(embeddings_array) - 1)
+                D, I = index.search(embeddings_array, k_neighbors)
+                
+                # 3. HDBSCAN 클러스터링 (완전 자동)
+                clusterer = hdbscan.HDBSCAN(
+                    min_cluster_size=max(2, len(embeddings_array) // 20),  # 동적 조정
+                    min_samples=2,  # 보수적 클러스터링
+                    metric='precomputed',
+                    cluster_selection_method='eom'  # Excess of Mass
+                )
+                
+                # precomputed distance matrix 생성
+                dist_matrix = D.copy()
+                np.fill_diagonal(dist_matrix, 0)
+                
+                labels = clusterer.fit_predict(dist_matrix)
+                
+                # 노이즈(-1) 처리: 각 노이즈를 별도 클러스터로
+                if -1 in labels:
+                    noise_indices = np.where(labels == -1)[0]
+                    max_label = labels.max()
+                    for idx, noise_idx in enumerate(noise_indices):
+                        labels[noise_idx] = max_label + 1 + idx
+                
+                num_clusters = len(set(labels))
+                logger.info(f"HDBSCAN clustering completed: {num_clusters} unique persons found")
+            
             # FINCH 사용 가능 시 FINCH로 클러스터링 (파라미터 프리)
-            if FINCH_AVAILABLE and clustering_method == 'finch':
+            elif FINCH_AVAILABLE and clustering_method == 'finch':
                 logger.info("Using FINCH clustering (parameter-free)")
                 embeddings_array = np.array(embeddings)
 
