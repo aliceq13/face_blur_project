@@ -1,0 +1,24 @@
+2025-12-01 00:51:53,162 - __main__ - INFO - Starting verification on media/videos/8ef99a9b-49df-45ec-9e70-3a5c5b184355.mp4
+DEBUG: Checking video path: /app/media/videos/8ef99a9b-49df-45ec-9e70-3a5c5b184355.mp4
+DEBUG: File exists.
+DEBUG: cv2 opened video. Frames: 776.0
+2025-12-01 00:51:53,233 - apps.videos.video_blurring - INFO - VideoBlurrer initialized with device: cuda, threshold: 0.95
+INFO 2025-12-01 00:51:53,233 video_blurring VideoBlurrer initialized with device: cuda, threshold: 0.95
+2025-12-01 00:51:53,233 - apps.videos.video_blurring - INFO - VideoBlurrer initialized with device: cuda, threshold: 0.95
+2025-12-01 00:51:53,674 - apps.videos.face_recognizer - INFO - Initializing FaceRecognizer with model: adaface, device: cuda
+INFO 2025-12-01 00:51:53,674 face_recognizer Initializing FaceRecognizer with model: adaface, device: cuda
+2025-12-01 00:51:53,674 - apps.videos.face_recognizer - INFO - Initializing FaceRecognizer with model: adaface, device: cuda
+2025-12-01 00:51:53,678 - apps.videos.face_recognizer - INFO - Using ViT-4M model (12M not found)
+INFO 2025-12-01 00:51:53,678 face_recognizer Using ViT-4M model (12M not found)
+2025-12-01 00:51:53,678 - apps.videos.face_recognizer - INFO - Using ViT-4M model (12M not found)
+AdaFaceWrapper: Using ViT-Base architecture
+AdaFace model loaded from /app/apps/videos/weights/adaface_vit_base_kprpe_webface4m.pt
+AdaFace model moved to cuda
+2025-12-01 00:51:57,044 - apps.videos.face_recognizer - INFO - AdaFace initialized from /app/apps/videos/weights/adaface_vit_base_kprpe_webface4m.pt
+INFO 2025-12-01 00:51:57,044 face_recognizer AdaFace initialized from /app/apps/videos/weights/adaface_vit_base_kprpe_webface4m.pt
+2025-12-01 00:51:57,044 - apps.videos.face_recognizer - INFO - AdaFace initialized from /app/apps/videos/weights/adaface_vit_base_kprpe_webface4m.pt
+2025-12-01 00:51:57,045 - apps.videos.video_blurring - INFO - FaceRecognizer initialized with model: adaface
+INFO 2025-12-01 00:51:57,045 video_blurring FaceRecognizer initialized with model: adaface
+2025-12-01 00:51:57,045 - apps.videos.video_blurring - INFO - FaceRecognizer initialized with model: adaface
+2025-12-01 00:51:57,108 - __main__ - INFO - Detecting face in the first 100 frames to use as target...
+2025-12-01 00:51:57,108 - __main__ - ERROR - No face found in first 100 frames to use as target.
