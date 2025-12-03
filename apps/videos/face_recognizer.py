@@ -48,11 +48,13 @@ class FaceRecognizer:
                 logger.info("ArcFace (buffalo_l) initialized successfully")
                 
             elif self.model_name == 'adaface':
-                # Initialize AdaFace
+                # AdaFace 초기화
+                # NOTE: InsightFace alignment은 제거 (속도 향상)
+                # Initialize AdaFace model
                 base_dir = os.path.dirname(os.path.abspath(__file__))
                 # Try ViT-12M first (best performance)
                 weight_path = os.path.join(base_dir, 'weights', 'adaface_vit_base_kprpe_webface12m.pt')
-                
+
                 if not os.path.exists(weight_path):
                     # Fallback to ViT-4M
                     weight_path_4m = os.path.join(base_dir, 'weights', 'adaface_vit_base_kprpe_webface4m.pt')
@@ -67,7 +69,7 @@ class FaceRecognizer:
                         else:
                             logger.warning(f"ViT weights not found, falling back to IR-50")
                             weight_path = os.path.join(base_dir, 'weights', 'adaface_ir50_ms1mv2.ckpt')
-                
+
                 self.model = AdaFaceWrapper(weight_path, device=self.device)
                 logger.info(f"AdaFace initialized from {weight_path}")
                 
@@ -108,9 +110,10 @@ class FaceRecognizer:
                     
             elif self.model_name == 'adaface':
                 # AdaFace inference
-                # Alignment logic removed as it caused issues.
-                # AdaFaceWrapper handles resizing and normalization.
-                return self.model.get_embedding(face_img)
+                # NOTE: InsightFace alignment은 이미 YOLO로 크롭된 작은 이미지에서
+                # 얼굴을 다시 찾으려고 하므로 실패율이 높고 느립니다.
+                # 따라서 AdaFace에 직접 전달하여 속도를 우선시합니다.
+                return self.model.get_embedding(face_img, skip_alignment=False)
                 
         except Exception as e:
             logger.error(f"Inference failed: {e}")

@@ -213,6 +213,13 @@ MODELS_ROOT = BASE_DIR / 'models'
 # YOLO Face Detection 모델 경로
 YOLO_FACE_MODEL_PATH = MODELS_ROOT / 'yolov11s-face.pt'
 
+# AdaFace 얼굴 인식 모델 경로
+ADAFACE_MODEL_PATH = BASE_DIR / 'apps' / 'videos' / 'weights' / 'adaface_vit_base_kprpe_webface12m.pt'
+ADAFACE_ARCHITECTURE = 'vit'  # 'ir_50', 'ir_101', 'vit'
+
+# Face Recognition Model (사용할 모델 선택)
+FACE_RECOGNITION_MODEL = 'adaface'  # 'arcface', 'adaface', 'facenet'
+
 # ============================================================================
 # AWS S3 설정 (운영 환경)
 # ============================================================================
