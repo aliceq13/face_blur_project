@@ -159,13 +159,22 @@ celerybeat.pid
 # ============================================================================
 # 프로젝트 특정 파일
 # ============================================================================
-# AI 모델 가중치 파일 (용량이 크므로 Git LFS 사용 권장)
-*.pt
-*.pth
+# AI 모델 가중치 파일 (Git LFS로 관리)
+# Note: *.pt, *.pth, *.ckpt are tracked by Git LFS (see .gitattributes)
+# 아래 파일들은 Git LFS로 추적됨:
+# - apps/videos/weights/*.pt
+# - apps/videos/weights/*.ckpt
+# - models/*.pt
+!apps/videos/weights/*.pt
+!apps/videos/weights/*.pth
+!apps/videos/weights/*.ckpt
+!models/*.pt
+!models/*.pth
+
+# 기타 모델 파일 제외
 *.h5
 *.pkl
 *.onnx
-weights/
 models/checkpoints/
 
 # 대용량 테스트 영상 파일
