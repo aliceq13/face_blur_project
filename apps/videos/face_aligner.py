@@ -41,41 +41,57 @@ class FaceAligner:
         self._load_model()
         
     def _load_model(self):
-        """Load alignment model from HuggingFace"""
+        """Load alignment model from HuggingFace using CVLface utils"""
         try:
-            from huggingface_hub import hf_hub_download
             import sys
-            
-            # Download model files
-            cache_dir = os.path.expanduser(f'~/.cvlface_cache/{self.model_id}')
-            os.makedirs(cache_dir, exist_ok=True)
-            
-            # Download model weights
-            model_path = hf_hub_download(
-                repo_id=self.model_id,
-                filename='model.pth',
-                cache_dir=cache_dir,
-                token=os.environ.get('HF_TOKEN', None)
-            )
-            
-            # Load CVLface model architecture
-            # Note: This requires CVLface to be in the Python path
-            cvlface_path = os.path.join(os.path.dirname(__file__), '../../CVLface')
-            if os.path.exists(cvlface_path):
-                sys.path.insert(0, cvlface_path)
-            
-            try:
-                from cvlface.research.recognition.code.run_v1.models.dfa_mobilenet import DFAMobileNet
-                self.model = DFAMobileNet()
-                self.model.load_state_dict(torch.load(model_path, map_location=self.device))
-                self.model.to(self.device)
-                self.model.eval()
-                logger.info(f"FaceAligner loaded successfully on {self.device}")
-            except ImportError as e:
-                logger.warning(f"Could not import CVLface DFA model: {e}")
+            from pathlib import Path
+
+            # Add CVLface to Python path
+            project_root = Path(__file__).resolve().parents[2]
+            cvlface_path = project_root / 'CVLface' / 'cvlface'
+            run_v1_path = cvlface_path / 'research' / 'recognition' / 'code' / 'run_v1'
+
+            if not cvlface_path.exists():
+                logger.warning(f"CVLface directory not found at {cvlface_path}")
                 logger.warning("Falling back to simple resize alignment")
                 self.model = None
-                
+                return
+
+            # Add both CVLface and run_v1 to Python path (for aligners module)
+            sys.path.insert(0, str(cvlface_path.parent))
+            if run_v1_path.exists():
+                sys.path.insert(0, str(run_v1_path))
+
+            # Import CVLface utilities
+            try:
+                from cvlface.general_utils.huggingface_model_utils import load_model_by_repo_id
+
+                # Download and load model
+                cache_dir = os.path.expanduser(f'~/.cvlface_cache/{self.model_id}')
+                hf_token = os.environ.get('HF_TOKEN', None)
+
+                logger.info(f"Loading CVLface DFA model from {self.model_id}...")
+                self.model = load_model_by_repo_id(
+                    repo_id=self.model_id,
+                    save_path=cache_dir,
+                    HF_TOKEN=hf_token
+                )
+
+                self.model.to(self.device)
+                self.model.eval()
+                logger.info(f"✅ FaceAligner loaded successfully on {self.device}")
+
+            except ImportError as e:
+                logger.warning(f"Could not import CVLface utilities: {e}")
+                logger.warning("Falling back to simple resize alignment")
+                self.model = None
+            finally:
+                # Remove CVLface paths from sys.path
+                if str(run_v1_path) in sys.path:
+                    sys.path.remove(str(run_v1_path))
+                if str(cvlface_path.parent) in sys.path:
+                    sys.path.remove(str(cvlface_path.parent))
+
         except Exception as e:
             logger.warning(f"Failed to load alignment model: {e}")
             logger.warning("Falling back to simple resize alignment")
@@ -150,3 +166,35 @@ class FaceAligner:
         if face_img_rgb.shape[:2] != (112, 112):
             face_img_rgb = cv2.resize(face_img_rgb, (112, 112))
         return face_img_rgb
+
+
+# ============================================================================
+# Global aligner instance and convenience function
+# ============================================================================
+
+_global_aligner = None
+
+
+def get_aligner():
+    """Get or create global FaceAligner instance (singleton pattern)"""
+    global _global_aligner
+    if _global_aligner is None:
+        _global_aligner = FaceAligner(device='auto')
+    return _global_aligner
+
+
+def align_face(face_img_bgr):
+    """
+    Convenience function for face alignment.
+
+    Args:
+        face_img_bgr: Face image in BGR format (numpy array)
+
+    Returns:
+        aligned_face_rgb: Aligned face in RGB format (112x112 numpy array)
+
+    Note:
+        Uses a singleton FaceAligner instance for efficiency.
+    """
+    aligner = get_aligner()
+    return aligner.align_face(face_img_bgr)

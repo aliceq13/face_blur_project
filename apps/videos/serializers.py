@@ -24,22 +24,35 @@ class UserSerializer(serializers.ModelSerializer):
 
 class FaceSerializer(serializers.ModelSerializer):
     """
-    얼굴 정보 Serializer
-    - 비디오에서 감지된 얼굴 정보를 직렬화
-    - 썸네일 URL, 출현 횟수, 블러 처리 여부 등
+    얼굴 Instance 정보 Serializer
+    - Two-Stage Re-ID로 감지된 얼굴 Instance 정보를 직렬화
+    - Instance ID, 썸네일 URL, Track IDs, 품질 점수, 등장 프레임 수 등
     """
-    # thumbnail_url은 S3 또는 로컬 미디어 URL로 자동 변환됨
+    track_count = serializers.SerializerMethodField()  # Track ID 개수
+
+    def get_track_count(self, obj):
+        """Track IDs 배열의 길이를 반환"""
+        return len(obj.track_ids) if obj.track_ids else 0
+
     class Meta:
         model = Face
         fields = [
             'id',
-            'face_index',           # 얼굴 번호 (1, 2, 3...)
-            'thumbnail_url',        # 썸네일 이미지 URL
-            'appearance_count',     # 이 얼굴이 영상에 나타난 횟수
-            'is_blurred',          # 블러 처리 선택 여부 (사용자가 선택)
+            'instance_id',         # Re-ID 시스템이 할당한 고유 Instance ID
+            'thumbnail_url',       # 최고 품질 썸네일 이미지 URL
+            'track_ids',          # 이 instance에 속한 모든 BoTSORT track ID 목록
+            'track_count',        # Track ID 개수 (편의성)
+            'quality_score',      # Laplacian variance 선명도 점수
+            'frame_index',        # 썸네일이 추출된 프레임 번호
+            'bbox',               # 얼굴 bounding box [x1, y1, x2, y2]
+            'total_frames',       # 영상 내 등장한 총 프레임 수
+            'is_blurred',         # 블러 처리 선택 여부 (사용자가 선택)
             'created_at',
         ]
-        read_only_fields = ['id', 'face_index', 'thumbnail_url', 'appearance_count', 'created_at']
+        read_only_fields = [
+            'id', 'instance_id', 'thumbnail_url', 'track_ids', 'track_count',
+            'quality_score', 'frame_index', 'bbox', 'total_frames', 'created_at'
+        ]
 
 
 class ProcessingJobSerializer(serializers.ModelSerializer):
@@ -75,7 +88,7 @@ class VideoListSerializer(serializers.ModelSerializer):
     - 목록 조회 시 성능을 위해 필수 정보만 포함
     - 상세 정보는 VideoDetailSerializer 사용
     """
-    user = UserSerializer(read_only=True)
+    user = UserSerializer(read_only=True, allow_null=True)
     status_display = serializers.CharField(source='get_status_display', read_only=True)
     face_count = serializers.SerializerMethodField()  # 감지된 얼굴 수
 
@@ -105,7 +118,7 @@ class VideoDetailSerializer(serializers.ModelSerializer):
     - 비디오의 모든 정보 포함 (메타데이터, 얼굴 목록, 처리 작업 등)
     - 개별 비디오 조회 시 사용
     """
-    user = UserSerializer(read_only=True)
+    user = UserSerializer(read_only=True, allow_null=True)
     faces = FaceSerializer(many=True, read_only=True)  # 감지된 얼굴 목록
     processing_jobs = ProcessingJobSerializer(
         source='processingjob_set',  # Video 모델의 역참조

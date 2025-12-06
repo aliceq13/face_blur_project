@@ -338,7 +338,7 @@ class FaceViewSet(viewsets.ModelViewSet):
         if video_id:
             queryset = queryset.filter(video_id=video_id)
 
-        return queryset.order_by('face_index')
+        return queryset.order_by('instance_id')
 
     def get_serializer_class(self):
         """

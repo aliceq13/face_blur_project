@@ -16,16 +16,16 @@ from .models import Video, Face, ProcessingJob
 
 class FaceInline(admin.TabularInline):
     """
-    Video Admin에 얼굴 목록을 Inline으로 표시
+    Video Admin에 얼굴 Instance 목록을 Inline으로 표시
 
     TabularInline: 테이블 형태로 표시
     """
     model = Face
     extra = 0  # 빈 추가 폼 표시하지 않음
-    readonly_fields = ('id', 'face_index', 'thumbnail_preview', 'appearance_count',
-                      'first_frame', 'last_frame', 'created_at')
-    fields = ('face_index', 'thumbnail_preview', 'is_blurred',
-              'appearance_count', 'first_frame', 'last_frame')
+    readonly_fields = ('id', 'instance_id', 'thumbnail_preview', 'quality_score',
+                      'total_frames', 'track_count', 'created_at')
+    fields = ('instance_id', 'thumbnail_preview', 'is_blurred',
+              'quality_score', 'total_frames', 'track_count')
 
     def thumbnail_preview(self, obj):
         """썸네일 이미지 미리보기"""
@@ -36,6 +36,11 @@ class FaceInline(admin.TabularInline):
             )
         return "-"
     thumbnail_preview.short_description = '썸네일'
+
+    def track_count(self, obj):
+        """Track ID 개수"""
+        return len(obj.track_ids) if obj.track_ids else 0
+    track_count.short_description = 'Track 수'
 
 
 # ============================================================================
@@ -197,21 +202,21 @@ class VideoAdmin(admin.ModelAdmin):
 # ============================================================================
 @admin.register(Face)
 class FaceAdmin(admin.ModelAdmin):
-    """얼굴 모델 Admin 설정"""
+    """얼굴 Instance 모델 Admin 설정"""
 
-    list_display = ('face_index', 'video', 'thumbnail_preview',
-                    'appearance_count', 'blur_status', 'created_at')
+    list_display = ('instance_id', 'video', 'thumbnail_preview',
+                    'quality_score', 'total_frames', 'track_count', 'blur_status', 'created_at')
 
     list_filter = ('is_blurred', 'created_at')
 
-    search_fields = ('video__title', 'video__user__username')
+    search_fields = ('video__title', 'video__user__username', 'instance_id')
 
     readonly_fields = ('id', 'created_at', 'thumbnail_large',
-                      'first_frame', 'last_frame', 'appearance_count')
+                      'track_ids_display', 'quality_score', 'frame_index', 'bbox')
 
     fieldsets = (
         ('기본 정보', {
-            'fields': ('id', 'video', 'face_index')
+            'fields': ('id', 'video', 'instance_id')
         }),
         ('이미지', {
             'fields': ('thumbnail_url', 'thumbnail_large')
@@ -220,8 +225,11 @@ class FaceAdmin(admin.ModelAdmin):
             'fields': ('embedding',),
             'classes': ('collapse',)  # 접혀있는 상태
         }),
+        ('Re-ID 정보', {
+            'fields': ('track_ids', 'track_ids_display', 'quality_score', 'frame_index', 'bbox')
+        }),
         ('통계', {
-            'fields': ('appearance_count', 'first_frame', 'last_frame')
+            'fields': ('total_frames',)
         }),
         ('처리 옵션', {
             'fields': ('is_blurred',)
@@ -232,7 +240,22 @@ class FaceAdmin(admin.ModelAdmin):
         }),
     )
 
-    ordering = ('-created_at',)
+    ordering = ('instance_id',)
+
+    def track_count(self, obj):
+        """Track ID 개수"""
+        return len(obj.track_ids) if obj.track_ids else 0
+    track_count.short_description = 'Track 수'
+
+    def track_ids_display(self, obj):
+        """Track IDs를 보기 좋게 표시"""
+        if obj.track_ids:
+            return format_html(
+                '<span style="font-family:monospace;">{}</span>',
+                ', '.join(map(str, sorted(obj.track_ids)))
+            )
+        return "-"
+    track_ids_display.short_description = 'Track IDs (정렬됨)'
 
     def thumbnail_preview(self, obj):
         """작은 썸네일 미리보기 (목록용)"""

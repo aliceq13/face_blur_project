@@ -96,17 +96,17 @@ RUN pip install --no-cache-dir gunicorn==21.2.0
 # ============================================================================
 # 애플리케이션 코드 복사
 # ============================================================================
-# 모든 프로젝트 파일을 /app으로 복사
-# 모든 프로젝트 파일을 /app으로 복사
+# 모든 프로젝트 파일을 /app으로 복사 (CVLface 포함)
 COPY . /app/
 
-# CVLface 설치 (Source Code)
-# pip install로 설치가 안되므로 소스 코드를 직접 클론하고 PYTHONPATH에 추가
-# /app은 볼륨 마운트로 덮어씌워지므로 /libs에 설치
-RUN git clone https://github.com/mk-minchul/CVLface.git /libs/CVLface
+# CVLface를 /app/CVLface에서 사용 (로컬 복사본)
+# 추가로 /libs/CVLface에도 백업 (볼륨 마운트 시 사용)
+RUN if [ ! -d /app/CVLface ]; then \
+        git clone https://github.com/mk-minchul/CVLface.git /app/CVLface; \
+    fi
 
-# PYTHONPATH에 CVLface 추가
-ENV PYTHONPATH=/libs/CVLface:$PYTHONPATH
+# PYTHONPATH에 CVLface 추가 (로컬 버전 우선)
+ENV PYTHONPATH=/app/CVLface:/app:$PYTHONPATH
 
 # ============================================================================
 # Static 파일 디렉토리 생성

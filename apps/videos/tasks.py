@@ -1,20 +1,25 @@
 # -*- coding: utf-8 -*-
 """
-비디오 처리 Celery Tasks (YOLO Face v11s + BoTSORT + AdaFace ViT-12M)
+비디오 처리 Celery Tasks (Instance-based Re-ID System)
 
-이 모듈은 오래 걸리는 비디오 처리 작업을 백그라운드에서 비동기적으로 실행합니다.
+새로운 Instance 기반 시스템:
+- YOLO Face v11s + BoTSORT: 얼굴 감지 및 tracking
+- AdaFace ViT-12M: 임베딩 추출
+- Two-Stage Re-ID: Instance 유지 (장면 전환에도 같은 사람 인식)
 
 Tasks:
-- analyze_faces_task: 얼굴 분석 (YOLO + BoTSORT + AdaFace + FINCH/HDBSCAN)
+- analyze_faces_task: 얼굴 instance 분석 (Re-ID)
 - process_video_blur_task: 비디오 블러 처리
 """
 
 import os
 import logging
+import cv2
+import json
 from celery import shared_task
 from django.conf import settings
 from .models import Video, Face, ProcessingJob
-from .face_detection import FaceDetectionPipeline
+from .face_instance_detector import create_face_instance_detector
 from .memory_monitor import MemoryMonitor
 
 logger = logging.getLogger(__name__)
@@ -28,19 +33,20 @@ logger = logging.getLogger(__name__)
 )
 def analyze_faces_task(self, video_id: str):
     """
-    비디오 얼굴 분석 Celery Task
+    비디오 얼굴 Instance 분석 Celery Task (Two-Stage Re-ID)
 
     처리 흐름:
     1. Video 객체 로드
     2. 상태를 'analyzing'으로 변경
     3. ProcessingJob 생성/업데이트
-    4. FaceDetectionPipeline 실행
+    4. FaceInstanceDetector 실행
        - YOLO Face v11s: 얼굴 감지
-       - BoTSORT: 추적
+       - BoTSORT: track_id 할당
+       - CVLface: alignment
        - AdaFace ViT-12M: 임베딩 추출
-       - FINCH/HDBSCAN: 클러스터링
-       - 썸네일 저장
-    5. Face 모델 생성 (각 클러스터마다)
+       - Two-Stage Re-ID: instance_id 할당 (같은 사람은 같은 ID 유지)
+       - 각 instance의 최고 품질 썸네일만 저장
+    5. Face 모델 생성 (각 instance마다 1개)
     6. Video 상태를 'ready'로 변경
     7. ProcessingJob 완료 처리
 
@@ -50,7 +56,7 @@ def analyze_faces_task(self, video_id: str):
     Returns:
         {
             'video_id': str,
-            'faces_count': int,
+            'instances_count': int,
             'status': 'success'
         }
 
@@ -58,7 +64,7 @@ def analyze_faces_task(self, video_id: str):
         ValueError: Video를 찾을 수 없는 경우
         Exception: 처리 중 오류 발생 시 재시도
     """
-    logger.info(f"[Task {self.request.id}] Starting face analysis for video {video_id}")
+    logger.info(f"[Task {self.request.id}] Starting face instance analysis for video {video_id}")
 
     # 메모리 모니터 초기화 (7GB 제한)
     memory_monitor = MemoryMonitor(limit_gb=7.0, warning_threshold=0.85)
@@ -127,34 +133,26 @@ def analyze_faces_task(self, video_id: str):
         os.makedirs(thumbnail_dir, exist_ok=True)
 
         # ====================================================================
-        # 5-1. YOLO 모델 파일 검증
-        # ====================================================================
-        yolo_model_path = str(settings.YOLO_FACE_MODEL_PATH)
-        if not os.path.exists(yolo_model_path):
-            error_msg = f"YOLO model file not found: {yolo_model_path}"
-            logger.error(error_msg)
-            raise FileNotFoundError(error_msg)
-
-        model_size = os.path.getsize(yolo_model_path)
-        if model_size < 1_000_000:  # Less than 1MB
-            error_msg = f"YOLO model file seems corrupted (size: {model_size} bytes)"
-            logger.error(error_msg)
-            raise ValueError(error_msg)
-
-        logger.info(f"YOLO model validated: {yolo_model_path} ({model_size / 1024 / 1024:.1f} MB)")
-
-        # ====================================================================
-        # 6. FaceDetectionPipeline 실행
+        # 6. FaceInstanceDetector 실행 (Two-Stage Re-ID)
         # ====================================================================
         logger.info("=" * 80)
-        logger.info("Initializing FaceDetectionPipeline...")
+        logger.info("Initializing FaceInstanceDetector with Two-Stage Re-ID...")
         logger.info("=" * 80)
-        memory_monitor.log_usage("Before pipeline init")
+        memory_monitor.log_usage("Before detector init")
 
-        pipeline = FaceDetectionPipeline(
-            yolo_model_path=None,  # None이면 settings.YOLO_FACE_MODEL_PATH 사용
+        # Re-ID 설정
+        reid_config = {
+            'fast_threshold': 0.975,   # Stage 1: Fast matching threshold
+            'slow_threshold': 0.975,   # Stage 2: Slow matching threshold
+            'top_k': 5,                # Top-K embeddings for slow matching
+            'max_embeddings': 20,      # Max embeddings per instance
+            'min_quality': 50.0        # Min quality for update (NIMA 스케일)
+        }
+
+        detector = create_face_instance_detector(
             device='auto',
-            sample_rate=1  # 모든 프레임 분석 (Tracking 정확도 향상)
+            reid_config=reid_config,
+            use_maniqa=True            # MANIQA 품질 평가 사용
         )
 
         # 진행률 업데이트: 10%
@@ -164,10 +162,10 @@ def analyze_faces_task(self, video_id: str):
         job.save(update_fields=['progress'])
         self.update_state(state='PROGRESS', meta={'progress': 10})
 
-        memory_monitor.log_usage("After pipeline init")
+        memory_monitor.log_usage("After detector init")
 
         # 진행률 콜백 함수
-        def update_progress(percent: int, message: str = ""):
+        def update_progress(percent: int):
             """진행률 업데이트 콜백"""
             # 10% (초기화) + 80% (처리) = 90%
             actual_percent = 10 + int(percent * 0.8)
@@ -178,27 +176,27 @@ def analyze_faces_task(self, video_id: str):
             job.progress = actual_percent
             job.save(update_fields=['progress'])
             self.update_state(state='PROGRESS', meta={
-                'progress': actual_percent,
-                'message': message
+                'progress': actual_percent
             })
 
-            logger.info(f"Progress: {actual_percent}% - {message}")
-
             # 메모리 체크
-            memory_monitor.check_and_cleanup()
+            if actual_percent % 10 == 0:
+                memory_monitor.check_and_cleanup()
 
-        logger.info("Running face detection pipeline...")
-        detected_faces = pipeline.process_video(
+        logger.info("Running face instance detection with Re-ID...")
+        instances = detector.process_video(
             video_path=video_path,
-            output_dir=thumbnail_dir,
-            conf_threshold=0.4,  # YOLO 신뢰도 임계값
-            sim_threshold=0.6,   # 유사도 임계값 (HAC 사용 시에만 적용)
-            clustering_method='finch',  # 'finch', 'tw-finch', 'hdbscan', 'hac'
-            progress_callback=update_progress
+            progress_callback=update_progress,
+            conf_threshold=0.4  # YOLO 신뢰도 임계값
         )
 
-        logger.info(f"Pipeline completed: {len(detected_faces)} unique faces found")
-        memory_monitor.log_usage("After pipeline")
+        logger.info(f"Detection completed: {len(instances)} unique instances found")
+
+        # Re-ID 통계 출력
+        reid_stats = detector.get_statistics()
+        logger.info(f"Re-ID Statistics: {json.dumps(reid_stats, indent=2)}")
+
+        memory_monitor.log_usage("After detection")
 
         # 진행률 업데이트: 90%
         video.progress = 90
@@ -208,30 +206,43 @@ def analyze_faces_task(self, video_id: str):
         self.update_state(state='PROGRESS', meta={'progress': 90})
 
         # ====================================================================
-        # 7. Face 모델 생성
+        # 7. 썸네일 저장 및 Face 모델 생성
         # ====================================================================
-        logger.info("Creating Face model instances...")
+        logger.info("Saving thumbnails and creating Face model instances...")
         created_faces = []
 
-        for face_data in detected_faces:
-            # thumbnail_path를 URLField 형식으로 변환
-            thumbnail_rel_path = face_data['thumbnail_path'].replace(
-                str(settings.MEDIA_ROOT),
-                settings.MEDIA_URL.rstrip('/')
-            )
+        for instance_id, instance_data in instances.items():
+            # 썸네일 저장
+            thumbnail_filename = f"instance_{instance_id}.jpg"
+            thumbnail_path = os.path.join(thumbnail_dir, thumbnail_filename)
 
+            # BGR 이미지 저장
+            cv2.imwrite(thumbnail_path, instance_data['thumbnail'])
+
+            # URL 생성
+            thumbnail_url = f"{settings.MEDIA_URL}faces/thumbnails/{str(video.id)}/{thumbnail_filename}"
+
+            # Face 모델 생성
             face = Face.objects.create(
                 video=video,
-                face_index=face_data['face_index'],
-                thumbnail_url=thumbnail_rel_path,
-                embedding=face_data['embedding'],  # JSON 필드 (list)
-                embeddings=face_data.get('embeddings', []),  # Multi-Thumbnail embeddings
-                appearance_count=face_data['appearance_count'],
-                first_frame=face_data['first_frame'],
-                last_frame=face_data['last_frame'],
-                is_blurred=True  # 기본값: 블러 처리 대상
+                instance_id=instance_id,
+                track_ids=instance_data['track_ids'],
+                thumbnail_url=thumbnail_url,
+                embedding=instance_data['embedding'],  # JSON list
+                quality_score=instance_data['quality'],
+                frame_index=instance_data['frame_idx'],
+                bbox=list(instance_data['bbox']),
+                total_frames=instance_data['total_frames'],
+                is_blurred=True,  # 기본값: 모두 블러 처리, 사용자가 선택 해제
+                frame_data=instance_data.get('frame_data', {})  # 프레임별 bbox 데이터
             )
-            logger.info(f"Created face {face.id} (index {face.face_index}): is_blurred={face.is_blurred}")
+
+            logger.info(
+                f"Created Face instance {instance_id}: "
+                f"quality={instance_data['quality']:.1f}, "
+                f"tracks={len(instance_data['track_ids'])}, "
+                f"frames={instance_data['total_frames']}"
+            )
             created_faces.append(face)
 
         logger.info(f"Created {len(created_faces)} Face instances")
@@ -408,19 +419,21 @@ def process_video_blur_task(self, video_id: str):
         output_path = os.path.join(settings.MEDIA_ROOT, 'videos', 'processed', output_filename)
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-        # 3. Face 데이터 로드
+        # 3. Face Instance 데이터 로드 (프레임별 bbox 포함)
         faces = Face.objects.filter(video=video)
         face_models = []
         for face in faces:
             if face.embedding:
                 face_models.append({
                     'id': str(face.id),
-                    'embedding': face.embedding,
-                    'embeddings': face.embeddings,  # Multi-Thumbnail embeddings
-                    'is_blurred': face.is_blurred
+                    'instance_id': face.instance_id,
+                    'embedding': face.embedding,  # 단일 임베딩만 (최고 품질)
+                    'embeddings': [],  # Multi-embedding 비활성화
+                    'is_blurred': face.is_blurred,
+                    'frame_data': face.frame_data  # 프레임별 bbox 데이터
                 })
 
-        logger.info(f"Loaded {len(face_models)} face models for matching")
+        logger.info(f"Loaded {len(face_models)} face instance models (with frame_data) for optimized blur")
 
         # 4. VideoBlurrer 실행
         blurrer = VideoBlurrer(

@@ -14,8 +14,13 @@ from __future__ import absolute_import, unicode_literals
 import os
 import gc
 import logging
+import multiprocessing
 from celery import Celery
 from celery.signals import worker_process_init, task_prerun, task_postrun
+
+# CUDA 호환성을 위해 spawn 방식 사용
+# fork 방식은 CUDA 재초기화 불가능
+multiprocessing.set_start_method('spawn', force=True)
 
 logger = logging.getLogger(__name__)
 

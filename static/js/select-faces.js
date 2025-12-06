@@ -8,7 +8,7 @@ const selectedFaces = new Set();
 let allFaces = [];
 
 // DOM 로드 시 초기화
-document.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', async function () {
     await loadFaces();
     initializeSubmitButton();
 });
@@ -83,8 +83,8 @@ function createFaceThumbnail(face, index) {
             <span class="material-symbols-outlined text-sm">check</span>
         </div>
         <div class="flex flex-col gap-1">
-            <p class="text-white text-sm font-medium">얼굴 ${face.face_index}</p>
-            <p class="text-slate-400 text-xs">${face.appearance_count}회 출현</p>
+            <p class="text-white text-sm font-medium">인물 ${face.instance_id}</p>
+            <p class="text-slate-400 text-xs">${face.total_frames}프레임 출현</p>
         </div>
     `;
 

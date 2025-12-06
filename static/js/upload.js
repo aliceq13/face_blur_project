@@ -246,23 +246,12 @@ async function startAnalysisPolling(fileId, videoId) {
     if (!item || !item.element) return;
 
     let pollCount = 0;
-    const maxPolls = 120; // 최대 2분 (2초마다 체크)
+    // 시간 제한 제거: 분석이 완료될 때까지 무한 대기
 
     const pollInterval = setInterval(async () => {
         pollCount++;
 
-        // 최대 폴링 횟수 초과 시 타임아웃 처리
-        if (pollCount > maxPolls) {
-            clearInterval(pollInterval);
-            const statusContainer = item.element.querySelector('.flex.items-center.justify-between');
-            statusContainer.innerHTML = `
-                <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-error">error</span>
-                    <p class="text-sm font-normal text-error">분석 시간 초과. 잠시 후 다시 확인해주세요.</p>
-                </div>
-            `;
-            return;
-        }
+        // 시간 제한 제거됨 - 분석 완료될 때까지 계속 폴링
 
         try {
             // 비디오 상태 확인

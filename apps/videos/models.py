@@ -261,21 +261,26 @@ class Video(models.Model):
 # ============================================================================
 class Face(models.Model):
     """
-    영상에서 발견된 고유 얼굴
+    영상에서 발견된 고유 얼굴 Instance
 
-    얼굴 분석 과정:
-    1. 영상의 프레임을 샘플링 (매 30프레임마다)
-    2. FastAPI로 각 프레임에서 얼굴 검출
-    3. 얼굴 임베딩 벡터 추출 (FaceNet, 512차원)
-    4. DBSCAN 클러스터링으로 같은 사람끼리 그룹화
-    5. 각 클러스터(고유 얼굴)의 대표 이미지 저장
+    새로운 Instance 기반 시스템:
+    1. YOLO Face v11s로 얼굴 감지
+    2. BoTSORT로 tracking (track_id 부여)
+    3. CVLface alignment
+    4. AdaFace ViT-12M으로 임베딩 추출
+    5. Two-Stage Re-ID로 instance_id 할당
+       - 장면 전환이나 화면 밖 이탈 시에도 같은 사람은 같은 instance
+    6. 각 instance의 최고 품질 썸네일만 저장
 
     필드:
         video: 영상 외래 키
-        face_index: 얼굴 순번 (1, 2, 3, ...)
-        thumbnail_url: 대표 얼굴 이미지 S3 URL
-        embedding: 512차원 임베딩 벡터 (JSON)
-        appearance_count: 영상 내 등장 횟수
+        instance_id: Re-ID로 할당된 고유 instance 번호 (같은 사람은 항상 같은 ID)
+        track_ids: 이 instance에 속한 모든 BoTSORT track ID들
+        thumbnail_url: 최고 품질 얼굴 이미지 S3 URL
+        embedding: 512차원 임베딩 벡터 (단일, 최고 품질)
+        quality_score: Laplacian variance 품질 점수
+        frame_index: 썸네일이 추출된 프레임 번호
+        total_frames: 영상 내 등장한 총 프레임 수
         is_blurred: 블러 처리 여부 (사용자 선택)
     """
 
@@ -299,64 +304,93 @@ class Face(models.Model):
         verbose_name='영상'
     )
 
-    # 얼굴 순번 (1부터 시작)
-    # - 같은 영상 내에서 중복 불가 (unique_together)
-    face_index = models.IntegerField(
-        verbose_name='얼굴 순번',
-        help_text='영상 내에서 발견된 순서 (1, 2, 3, ...)'
+    # Instance ID (Re-ID 시스템이 할당)
+    # - 같은 사람은 항상 같은 instance_id
+    # - 장면 전환이나 화면 밖 이탈 후 재등장해도 유지됨
+    # - 영상 내에서 고유 (unique_together)
+    instance_id = models.IntegerField(
+        verbose_name='Instance ID',
+        help_text='Re-ID 시스템이 할당한 고유 instance 번호 (같은 사람은 항상 같은 ID)',
+        db_index=True
+    )
+
+    # Track IDs (JSON 배열)
+    # - 이 instance에 속한 모든 BoTSORT track_id들
+    # - 예: [1, 5, 12] → 3번의 다른 track에서 등장했지만 같은 사람으로 인식됨
+    track_ids = models.JSONField(
+        default=list,
+        verbose_name='Track ID 목록',
+        help_text='이 instance에 속한 모든 BoTSORT track ID (JSON 배열)'
     )
 
     # ========================================================================
     # 얼굴 이미지 정보
     # ========================================================================
-    # 대표 썸네일 URL
-    # - S3: https://faceblur-videos.s3.amazonaws.com/thumbnails/video123/face_1.jpg
-    # - 가장 선명한(면적이 큰) 얼굴 이미지
+    # 최고 품질 썸네일 URL
+    # - S3: https://faceblur-videos.s3.amazonaws.com/thumbnails/video123/instance_0.jpg
+    # - 가장 선명한(Laplacian variance 최대) 얼굴 이미지
     thumbnail_url = models.URLField(
         max_length=500,
         verbose_name='썸네일 URL',
-        help_text='대표 얼굴 이미지 경로'
+        help_text='최고 품질 얼굴 이미지 경로'
     )
 
-    # 얼굴 임베딩 벡터 (512차원)
-    # - FaceNet 모델로 추출한 특징 벡터
+    # 얼굴 임베딩 벡터 (512차원, 단일)
+    # - AdaFace ViT-12M으로 추출한 특징 벡터
     # - JSON 형식으로 저장: [0.123, -0.456, ...]
-    # - 같은 사람인지 비교할 때 사용 (코사인 유사도)
+    # - 블러 처리 시 이 임베딩과 비교 (코사인 유사도)
+    # - 품질이 가장 좋은 프레임의 임베딩만 저장
     embedding = models.JSONField(
         verbose_name='임베딩 벡터',
-        help_text='FaceNet 512차원 특징 벡터 (JSON 배열)'
+        help_text='AdaFace 512차원 특징 벡터 (최고 품질, JSON 배열)'
     )
 
-    # 다중 임베딩 (Multi-Thumbnail)
-    # - 다양한 각도(정면, 측면 등)를 커버하기 위해 상위 3개의 임베딩 저장
-    # - JSON 형식: [[0.1, ...], [0.2, ...], [0.3, ...]]
-    embeddings = models.JSONField(
+    # 품질 점수 (Laplacian variance)
+    # - 높을수록 선명함
+    # - 썸네일 선택 및 Re-ID 업데이트 기준
+    quality_score = models.FloatField(
+        verbose_name='품질 점수',
+        help_text='Laplacian variance 선명도 점수 (높을수록 선명)',
+        db_index=True
+    )
+
+    # 썸네일 프레임 번호
+    # - 이 썸네일이 추출된 프레임의 위치
+    frame_index = models.IntegerField(
+        verbose_name='썸네일 프레임 번호',
+        help_text='최고 품질 썸네일이 추출된 프레임 번호'
+    )
+
+    # Bounding Box (JSON)
+    # - 썸네일 프레임에서의 얼굴 위치 [x1, y1, x2, y2]
+    bbox = models.JSONField(
         default=list,
-        verbose_name='다중 임베딩 벡터',
-        help_text='상위 3개 얼굴의 임베딩 벡터 리스트'
+        verbose_name='Bounding Box',
+        help_text='얼굴 위치 좌표 [x1, y1, x2, y2]'
+    )
+
+    # Frame-level tracking data (JSON)
+    # - 각 프레임에서 이 instance의 bbox 위치
+    # - 구조: {frame_idx: [x1, y1, x2, y2, confidence], ...}
+    # - 예: {0: [100, 50, 200, 150, 0.95], 1: [102, 51, 201, 151, 0.96], ...}
+    # - 블러 처리 시 YOLO 재실행 없이 이 데이터 사용
+    frame_data = models.JSONField(
+        default=dict,
+        verbose_name='프레임별 Tracking 데이터',
+        help_text='각 프레임에서의 bbox 위치 (JSON 객체)',
+        blank=True
     )
 
     # ========================================================================
     # 통계 정보
     # ========================================================================
-    # 등장 횟수
-    # - 클러스터링 결과, 이 얼굴이 몇 개의 프레임에 등장했는지
-    appearance_count = models.IntegerField(
+    # 등장 프레임 수
+    # - 이 instance가 등장한 총 프레임 수
+    # - Track ID가 여러 개여도 총합
+    total_frames = models.IntegerField(
         default=0,
-        verbose_name='등장 횟수',
-        help_text='영상 내 이 얼굴이 등장한 총 횟수'
-    )
-
-    # 첫 등장 프레임 번호
-    first_frame = models.IntegerField(
-        verbose_name='첫 등장 프레임',
-        help_text='이 얼굴이 처음 등장한 프레임 번호'
-    )
-
-    # 마지막 등장 프레임 번호
-    last_frame = models.IntegerField(
-        verbose_name='마지막 등장 프레임',
-        help_text='이 얼굴이 마지막으로 등장한 프레임 번호'
+        verbose_name='등장 프레임 수',
+        help_text='영상 내 이 instance가 등장한 총 프레임 수'
     )
 
     # ========================================================================
@@ -382,23 +416,24 @@ class Face(models.Model):
     # ========================================================================
     class Meta:
         db_table = 'faces'
-        verbose_name = '얼굴'
-        verbose_name_plural = '얼굴 목록'
-        ordering = ['face_index']
+        verbose_name = '얼굴 Instance'
+        verbose_name_plural = '얼굴 Instance 목록'
+        ordering = ['instance_id']
 
         # 복합 유니크 제약
-        # - 같은 영상에서 같은 face_index는 중복 불가
-        unique_together = ['video', 'face_index']
+        # - 같은 영상에서 같은 instance_id는 중복 불가
+        unique_together = ['video', 'instance_id']
 
         # 인덱스
         indexes = [
-            models.Index(fields=['video', 'face_index']),
+            models.Index(fields=['video', 'instance_id']),
+            models.Index(fields=['quality_score']),
         ]
 
     def __str__(self):
         """객체의 문자열 표현"""
         blur_status = "블러" if self.is_blurred else "원본"
-        return f"Face {self.face_index} in {self.video.title} ({blur_status})"
+        return f"Instance {self.instance_id} in {self.video.title} ({blur_status}, {len(self.track_ids)} tracks)"
 
 
 # ============================================================================
